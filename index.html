@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ManipTracker: Synthesizing Whole-Body Loco-Manipulation without Human Demonstration</title>
+<meta name="description" content="ManipSynth synthesizes whole-body loco-manipulation demonstrations from grasp anchors and sparse body tracking, without human demonstrations of the interaction. ManipTracker, a humanoid-object interaction tracking policy, is trained on them alone. NeurIPS 2026.">
+<meta name="author" content="Yufei Zhu, Runyi Yu, Yinhuai Wang, Aoru Xue, Qin Sun, Qingqiu Huang, Xinge Zhu, Zhiyang Dou, Yuexin Ma">
+<link rel="icon" href="media/img/favicon.png" type="image/png">
+<link rel="stylesheet" href="site.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/", "@sparkjsdev/spark": "./vendor/spark/spark.module.min.js" } }</script>
+</head>
+<body>
+
+<!-- the first screen: a tall section whose content sticks; the scroll position plays the 3D scene (hero.js) -->
+<header class="scrolly" id="top" data-chapter="0">
+  <div class="sticky">
+    <img class="fallback" src="media/img/teaser.png" alt="">
+    <canvas id="hero-canvas" aria-label="A G1 humanoid walks to a washing machine in a laundry room, hooks its right hand behind the rim of the door and pulls the door open"></canvas>
+    <div class="hud">
+      <div class="chapter title on">
+        <span class="tag" style="--accent: var(--ink)">NeurIPS 2026</span>
+        <h1>ManipTracker</h1>
+        <p class="subtitle">Synthesizing Whole-Body Loco-Manipulation without Human Demonstration</p>
+        <p class="authors">
+          <span>Yufei Zhu<sup>1*</sup></span>, <span>Runyi Yu<sup>2*</sup></span>, <span>Yinhuai Wang<sup>2</sup></span>, <span>Aoru Xue<sup>1</sup></span>, <span>Qin Sun<sup>3,4</sup></span>,
+          <span>Qingqiu Huang<sup>5</sup></span>, <span>Xinge Zhu<sup>6</sup></span>, <span>Zhiyang Dou<sup>7</sup></span>, <span>Yuexin Ma<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>ShanghaiTech University</span> <i>·</i> <span><sup>2</sup>The Hong Kong University of Science and Technology</span> <i>·</i>
+          <span><sup>3</sup>Guangzhou Institute of Energy Conversion, CAS</span> <i>·</i> <span><sup>4</sup>University of Science and Technology of China</span> <i>·</i>
+          <span><sup>5</sup>Morphi</span> <i>·</i> <span><sup>6</sup>The Chinese University of Hong Kong</span> <i>·</i> <span><sup>7</sup>The University of Hong Kong</span><br>
+          <span><sup>*</sup>Equal contribution</span> <i>·</i> <span><sup>†</sup>Corresponding author</span>
+        </p>
+        <p class="pitch"><b class="synth">ManipSynth</b> composes object-centric grasp anchors and sparse whole-body tracking into synthetic humanoid-object demonstrations. <b class="tracker">ManipTracker</b> is trained on these alone and tracks them in simulation.</p>
+        <div class="links">
+          <!-- the paper is served from this folder; swap the href for the arXiv link once there is one -->
+          <a class="pill primary" href="20532_Synthesizing_Whole_Body_.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5h7l3 3v10H3z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7.5h5M5.5 10h5M5.5 12.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Paper</a>
+          <a class="pill" href="#overview">Video</a>
+          <a class="pill" href="#method">Method</a>
+          <a class="pill" href="#cite">BibTeX</a>
+        </div>
+      </div>
+      <div class="chapter" style="--accent: var(--gold)">
+        <span class="tag">ManipSynth · Part I</span>
+        <h2>Grasp anchors, in the object's frame</h2>
+        <p>For each hand and object, grasp poses are generated, optimized for force closure and filtered. What remains are reusable anchors that travel with the object.</p>
+      </div>
+      <div class="chapter" style="--accent: var(--orange)">
+        <span class="tag">ManipSynth · Part II</span>
+        <h2>Whole-body motion from sparse controls</h2>
+        <p>The anchors turn an object's motion into wrist targets. Together with a root path, they guide a sparse tracker that generates the whole body.</p>
+        <ul class="legend"><li style="--c: #76c043">Root</li><li style="--c: #dc4b3e">Right wrist</li></ul>
+      </div>
+      <div class="chapter" style="--accent: var(--blue)">
+        <span class="tag">ManipSynth · Combine</span>
+        <h2>A synthetic HOI demonstration</h2>
+        <p>Composed, the two parts give humanoid, object and contact trajectories that are aligned, and structured enough to be tracked.</p>
+      </div>
+      <div class="chapter" style="--accent: var(--green)">
+        <span class="tag">ManipTracker</span>
+        <h2>One policy that tracks them in simulation</h2>
+        <p>The synthetic demonstration is the tracking target. A unified policy, trained with an imitation reward, drives a simulated humanoid to reproduce it.</p>
+      </div>
+    </div>
+    <nav class="dots" aria-label="Story">
+      <button type="button" aria-current="step"><span>Intro</span></button>
+      <button type="button"><span>Grasp anchors</span></button>
+      <button type="button"><span>Body motion</span></button>
+      <button type="button"><span>Synthetic HOI</span></button>
+      <button type="button"><span>ManipTracker</span></button>
+    </nav>
+    <div class="scrollhint" aria-hidden="true"><span>Scroll</span><svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+</header>
+
+<!-- the teaser, the abstract, three numbers, the two figures of the method -->
+<section class="overview" id="overview">
+  <div class="wide">
+    <div class="card teaser"><video src="media/video/teaser.mp4" poster="media/poster/teaser.jpg" controls muted loop playsinline preload="none" data-autoplay></video></div>
+    <div class="about">
+      <div class="abstract">
+        <h2>Abstract</h2>
+        <p>Acquiring diverse whole-body dexterous manipulation data for humanoids remains a fundamental challenge in character animation and robotics. Existing pipelines rely on expensive mocap data collected from many subjects and require retargeting to a unified humanoid shape, which limits scalable data construction and often yields physically inconsistent interactions (e.g., unstable contacts).</p>
+        <p>We present <b class="synth">ManipSynth</b>, a unified framework for whole-body loco-manipulation synthesis, with compositional generation of sparse whole-body motion, object-centric grasp anchors, and contact-aware interaction transitions. Then, we scale data generation through randomized pre-grasp motions, grasp poses, and object trajectories. ManipSynth achieves approximately 5× higher contact coverage and lower average penetration than OMOMO across representative objects.</p>
+        <p>To test whether better contact-consistent data improve scalable control learning, we train <b class="tracker">ManipTracker</b>, a general-purpose Humanoid-Object Interaction (HOI) tracking policy, on purely synthetic demonstrations. Under the same object set, number of training trajectories, the same ManipTracker trained on ManipSynth demonstrates stronger generalization than when trained on mocap data, while achieving over 90% training success.</p>
+      </div>
+      <dl class="stats">
+        <div><dt>≈5×</dt><dd>the contact coverage of OMOMO: 18.5% against 4.0% <span class="synth">ManipSynth</span></dd></div>
+        <div><dt>≈½</dt><dd>the average penetration of OMOMO: 6.5 mm against 12.5 mm <span class="synth">ManipSynth</span></dd></div>
+        <div><dt>96.8%</dt><dd>of training sequences tracked, and 78.1% of test sequences with unseen grasp poses <span class="tracker">ManipTracker</span></dd></div>
+      </dl>
+    </div>
+    <figure class="figure">
+      <img src="media/img/overview.jpg" width="2020" height="944" alt="Left: ManipSynth generates synthetic HOI demonstrations for pick-place and handover, with one or two hands, on small and large objects. Right: ManipTracker learns a tracking policy from them in simulation." loading="lazy">
+      <figcaption>Left: ManipSynth generates structured, contact-aware and trackable synthetic HOI demonstrations. Right: ManipTracker learns a unified HOI tracking policy from these demonstrations in simulation.</figcaption>
+    </figure>
+    <figure class="figure">
+      <img src="media/img/pipeline.jpg" width="1648" height="849" alt="Part I, grasp anchor synthesis: hands and objects go through grasp pose generation, force closure optimization and filtering. Part II, body motion synthesis: left wrist, root and right wrist trajectories drive a sparse tracker. Combined, they give synthetic HOI trajectories with a clothes stand, a chair and binoculars." loading="lazy">
+      <figcaption>The ManipSynth pipeline. Part I synthesizes object-centric grasp anchors and filters them for quality. The anchors convert object motion into sparse wrist targets, which guide Part II to generate whole-body trajectories from root and wrist controls. The steps below go through it with clips.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- the method: five steps on one stage that sticks while the page scrolls through them; each step has a few clips to choose from -->
+<section class="flow" id="method" data-step="1">
+  <div class="sticky">
+    <div class="wide">
+      <div class="board">
+        <div class="lead" aria-live="polite">
+          <p data-step="1"><b>Part I, grasp anchor synthesis.</b> Grasp poses are generated for each hand and object, optimized for force closure and filtered. Two-hand grasps of large objects are scored as pairs. Each clip shows a grasp from the front and from above.</p>
+          <p data-step="2"><b>Part II, body motion synthesis.</b> A sparse tracker generates whole-body motion from any subset of three controls: the root, the left wrist and the right wrist.</p>
+          <p data-step="3"><b>Combine.</b> Anchors convert object motion into wrist targets, and the tracker fills in the body: synthetic HOI trajectories for pick-place and handover, with one hand or two, on small and large objects. One of about 400 frames takes 5.4 s to generate.</p>
+          <p data-step="4"><b>ManipTracker</b> learns one HOI tracking policy in simulation from the synthetic data alone, with a single imitation reward for every skill. Left: the ManipSynth reference. Right: the physically simulated humanoid tracking it.</p>
+          <p data-step="5"><b>Beyond the paper: a G1 humanoid.</b> The same kind of interaction on the G1, in simulation and on the real robot.</p>
+        </div>
+        <ol class="rail" aria-label="Steps">
+          <li style="--accent: var(--gold)"><button type="button" data-step="1" aria-current="step"><i><span>1</span></i><b>Grasp anchors</b></button></li>
+          <li style="--accent: var(--orange)"><button type="button" data-step="2"><i><span>2</span></i><b>Body motion</b></button></li>
+          <li style="--accent: var(--blue)"><button type="button" data-step="3"><i><span>3</span></i><b>Synthetic HOI</b></button></li>
+          <li style="--accent: var(--green)"><button type="button" data-step="4"><i><span>4</span></i><b>ManipTracker</b></button></li>
+          <li style="--accent: var(--ink)"><button type="button" data-step="5"><i><span>5</span></i><b>On the G1</b></button></li>
+        </ol>
+        <div class="stage" id="stage">
+          <figure class="panel fit on" data-step="1">
+            <span class="corner">PART I · GRASP ANCHOR</span>
+            <video src="media/video/grasp_camera.mp4" poster="media/poster/grasp_camera.jpg" muted loop playsinline preload="none"></video>
+            <img class="still" alt="" hidden>
+            <figcaption class="note"></figcaption>
+          </figure>
+          <figure class="panel" data-step="2">
+            <span class="corner">PART II · SPARSE TRACKING</span>
+            <video src="media/video/body_root_lwrist_rwrist.mp4" poster="media/poster/body_root_lwrist_rwrist.jpg" muted loop playsinline preload="none"></video>
+          </figure>
+          <figure class="panel fit" data-step="3">
+            <span class="corner">SYNTHETIC HOI</span>
+            <video src="media/video/hoi_clothesstand.mp4" poster="media/poster/hoi_clothesstand.jpg" muted loop playsinline preload="none"></video>
+            <img class="still" alt="" hidden>
+            <figcaption class="note"></figcaption>
+          </figure>
+          <figure class="panel duo" data-step="4">
+            <div><span class="corner">MANIPSYNTH · REFERENCE</span><video src="media/video/ref_woodchair.mp4" poster="media/poster/ref_woodchair.jpg" muted loop playsinline preload="none"></video></div>
+            <div><span class="corner">MANIPTRACKER · SIMULATED</span><video src="media/video/trk_woodchair.mp4" poster="media/poster/trk_woodchair.jpg" muted loop playsinline preload="none"></video></div>
+          </figure>
+          <figure class="panel duo" data-step="5">
+            <div><span class="corner">SIMULATION</span><video src="media/video/g1_sim_pickplace.mp4" poster="media/poster/g1_sim_pickplace.jpg" muted loop playsinline preload="none"></video></div>
+            <div><span class="corner">REAL WORLD</span><video src="media/video/g1_real_large.mp4" poster="media/poster/g1_real_large.jpg" muted loop playsinline preload="none"></video></div>
+          </figure>
+        </div>
+        <div class="thumbs" role="tablist" aria-label="Choose a clip"></div>
+        <div class="under">
+          <button class="pill primary next" type="button" id="next"><span>Next: body motion</span>&nbsp;&#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- more results -->
+<section class="gallery" id="results">
+  <div class="wide">
+    <h2>More results</h2>
+    <div class="tabs" role="tablist" aria-label="Result sets">
+      <button type="button" role="tab" data-set="long" aria-selected="true">Long-horizon</button>
+      <button type="button" role="tab" data-set="push" aria-selected="false">Push and pull</button>
+      <button type="button" role="tab" data-set="g1" aria-selected="false">G1 body motion</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- the paper's tables 3, 4 and 5, cut down to what the three numbers above stand on -->
+<section class="numbers" id="numbers">
+  <div class="wide">
+    <h2>In numbers</h2>
+    <div class="tables">
+      <figure>
+        <figcaption><b>Synthetic data against mocap.</b> ManipSynth and OMOMO on the same objects, averaged over the wooden chair, the clothes stand and the large table.</figcaption>
+        <div class="scroll"><table>
+          <thead><tr><th></th><th>OMOMO</th><th class="synth">ManipSynth</th></tr></thead>
+          <tbody>
+            <tr><th>Contact coverage ↑</th><td>3.96%</td><td><b>18.50%</b></td></tr>
+            <tr><th>Penetration, mm ↓</th><td>12.54</td><td><b>6.54</b></td></tr>
+            <tr><th>Foot sliding, mm ↓</th><td>0.692</td><td><b>0.134</b></td></tr>
+            <tr><th>Human jerk, m/s³ ↓</th><td><b>58.98</b></td><td>121.84</td></tr>
+            <tr><th>Object jerk, m/s³ ↓</th><td>28.93</td><td><b>17.85</b></td></tr>
+          </tbody>
+        </table></div>
+      </figure>
+      <figure>
+        <figcaption><b>The same tracker, two training sets.</b> Success rate of ManipTracker trained on 100 trajectories with the large table and the wooden chair, from ManipSynth or from OMOMO.</figcaption>
+        <div class="scroll"><table>
+          <thead><tr><th>Trained on</th><th>Train</th><th>Test</th><th>Cross-domain test*</th><th>All tests*</th></tr></thead>
+          <tbody>
+            <tr><th class="synth">ManipSynth</th><td><b>87.00%</b></td><td>80.00%</td><td><b>32.50%</b></td><td><b>56.25%</b></td></tr>
+            <tr><th>OMOMO</th><td>85.00%</td><td><b>85.00%</b></td><td>22.50%</td><td>53.75%</td></tr>
+          </tbody>
+        </table></div>
+        <p class="foot">* Measured with randomized initialization.</p>
+      </figure>
+      <figure>
+        <figcaption><b>ManipTracker on synthetic data.</b> The test sequences grasp the object at regions that the training sequences do not.</figcaption>
+        <div class="scroll"><table>
+          <thead><tr><th></th><th>Train success</th><th>Object error, mm</th><th>Test success</th><th>Object error, mm</th></tr></thead>
+          <tbody>
+            <tr><th>Wooden chair</th><td>98.70%</td><td>30.0</td><td>62.50%</td><td>38.2</td></tr>
+            <tr><th>Clothes stand</th><td>95.40%</td><td>55.3</td><td>91.67%</td><td>83.9</td></tr>
+            <tr><th>Table</th><td>96.39%</td><td>65.7</td><td>80.00%</td><td>75.2</td></tr>
+            <tr class="sum"><th>Average</th><td>96.83%</td><td>50.3</td><td>78.06%</td><td>65.8</td></tr>
+          </tbody>
+        </table></div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<footer id="cite">
+  <div class="wide">
+    <div class="cite">
+      <div class="cite-bar"><span>Citation</span><button class="copy" type="button">Copy</button></div>
+<pre id="bibtex">@inproceedings{zhu2026synthesizing,
+  title     = {Synthesizing Whole-Body Loco-Manipulation without Human Demonstration},
+  author    = {Zhu, Yufei and Yu, Runyi and Wang, Yinhuai and Xue, Aoru and Sun, Qin and Huang, Qingqiu and Zhu, Xinge and Dou, Zhiyang and Ma, Yuexin},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</pre>
+    </div>
+    <p class="ack">This work was supported by the National Natural Science Foundation of China (Project Number 62595774), the MoE Key Laboratory of Intelligent Perception and Human-Machine Collaboration (KLIP-HuMaCo), and the HPC Platform of ShanghaiTech University.</p>
+    <div class="end">
+      <p>Synthesizing Whole-Body Loco-Manipulation without Human Demonstration · NeurIPS 2026</p>
+      <a class="pill" href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="hero.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
