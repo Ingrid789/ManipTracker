@@ -111,16 +111,16 @@
         <div class="lead" aria-live="polite">
           <p data-step="1"><b>Part I, grasp anchor synthesis.</b> Grasp poses are generated for each hand and object, optimized for force closure and filtered. Two-hand grasps of large objects are scored as pairs. Each clip shows a grasp from the front and from above.</p>
           <p data-step="2"><b>Part II, body motion synthesis.</b> A sparse tracker generates whole-body motion from any subset of three controls: the root, the left wrist and the right wrist.</p>
-          <p data-step="3"><b>Combine.</b> Anchors convert object motion into wrist targets, and the tracker fills in the body: synthetic HOI trajectories for pick-place and handover, with one hand or two, on small and large objects. One of about 400 frames takes 5.4 s to generate.</p>
+          <p data-step="3"><b>Combine.</b> Anchors convert object motion into wrist targets, and the tracker fills in the body: synthetic HOI trajectories for pick-place and handover, with one hand or two, on small and large objects. One of about 400 frames takes 5.4 s to generate. Each clip shows a demonstration from two views.</p>
           <p data-step="4"><b>ManipTracker</b> learns one HOI tracking policy in simulation from the synthetic data alone, with a single imitation reward for every skill. Left: the ManipSynth reference. Right: the physically simulated humanoid tracking it.</p>
-          <p data-step="5"><b>Beyond the paper: a G1 humanoid.</b> The same kind of interaction on the G1, in simulation and on the real robot.</p>
+          <p data-step="5"><b>Beyond the paper: other robots.</b> The same task synthesized for a Unitree G1 with Revo2 hands and for an H2 with Sharpa Wave hands: references that pass the pipeline's checks, not rollouts of a policy. The last clip shows a G1 interaction in simulation and on the real robot.</p>
         </div>
         <ol class="rail" aria-label="Steps">
           <li style="--accent: var(--gold)"><button type="button" data-step="1" aria-current="step"><i><span>1</span></i><b>Grasp anchors</b></button></li>
           <li style="--accent: var(--orange)"><button type="button" data-step="2"><i><span>2</span></i><b>Body motion</b></button></li>
           <li style="--accent: var(--blue)"><button type="button" data-step="3"><i><span>3</span></i><b>Synthetic HOI</b></button></li>
           <li style="--accent: var(--green)"><button type="button" data-step="4"><i><span>4</span></i><b>ManipTracker</b></button></li>
-          <li style="--accent: var(--ink)"><button type="button" data-step="5"><i><span>5</span></i><b>On the G1</b></button></li>
+          <li style="--accent: var(--ink)"><button type="button" data-step="5"><i><span>5</span></i><b>Other robots</b></button></li>
         </ol>
         <div class="stage" id="stage">
           <figure class="panel fit on" data-step="1">
@@ -135,7 +135,7 @@
           </figure>
           <figure class="panel fit" data-step="3">
             <span class="corner">SYNTHETIC HOI</span>
-            <video src="media/video/hoi_clothesstand.mp4" poster="media/poster/hoi_clothesstand.jpg" muted loop playsinline preload="none"></video>
+            <video src="media/video/syn_chair_overhead.mp4" poster="media/poster/syn_chair_overhead.jpg" muted loop playsinline preload="none"></video>
             <img class="still" alt="" hidden>
             <figcaption class="note"></figcaption>
           </figure>
@@ -143,9 +143,9 @@
             <div><span class="corner">MANIPSYNTH · REFERENCE</span><video src="media/video/ref_woodchair.mp4" poster="media/poster/ref_woodchair.jpg" muted loop playsinline preload="none"></video></div>
             <div><span class="corner">MANIPTRACKER · SIMULATED</span><video src="media/video/trk_woodchair.mp4" poster="media/poster/trk_woodchair.jpg" muted loop playsinline preload="none"></video></div>
           </figure>
-          <figure class="panel duo" data-step="5">
-            <div><span class="corner">SIMULATION</span><video src="media/video/g1_sim_pickplace.mp4" poster="media/poster/g1_sim_pickplace.jpg" muted loop playsinline preload="none"></video></div>
-            <div><span class="corner">REAL WORLD</span><video src="media/video/g1_real_large.mp4" poster="media/poster/g1_real_large.jpg" muted loop playsinline preload="none"></video></div>
+          <figure class="panel duo contain solo" data-step="5">
+            <div><span class="corner">G1 + REVO2 · SYNTHESIZED</span><video src="media/video/wide_g1_chair_overhead.mp4" poster="media/poster/wide_g1_chair_overhead.jpg" muted loop playsinline preload="none"></video></div>
+            <div><span class="corner">REAL WORLD</span><video poster="media/poster/g1_real_large.jpg" muted loop playsinline preload="none"></video></div>
           </figure>
         </div>
         <div class="thumbs" role="tablist" aria-label="Choose a clip"></div>
@@ -162,10 +162,12 @@
   <div class="wide">
     <h2>More results</h2>
     <div class="tabs" role="tablist" aria-label="Result sets">
-      <button type="button" role="tab" data-set="long" aria-selected="true">Long-horizon</button>
-      <button type="button" role="tab" data-set="push" aria-selected="false">Push and pull</button>
-      <button type="button" role="tab" data-set="g1" aria-selected="false">G1 body motion</button>
+      <button type="button" role="tab" data-set="human" aria-selected="true">SMPL-X humanoid</button>
+      <button type="button" role="tab" data-set="g1" aria-selected="false">G1 + Revo2</button>
+      <button type="button" role="tab" data-set="h2" aria-selected="false">H2 + Sharpa Wave</button>
+      <button type="button" role="tab" data-set="body" aria-selected="false">Long-horizon and body motion</button>
     </div>
+    <p class="setnote" id="setnote" aria-live="polite"></p>
     <div class="grid" id="grid"></div>
   </div>
 </section>

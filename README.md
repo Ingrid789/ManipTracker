@@ -18,7 +18,8 @@ python3 -m http.server 8000     # then open http://localhost:8000/
 3. **The method** (`site.js`): five steps on one stage that sticks while the page scrolls through them, with a
    step rail on the left and the step's clips to choose from on the right. Steps 1 and 3 also offer a figure from
    the paper (Fig. 6 and Fig. 7).
-4. **More results**: long-horizon, push and pull, G1 body motion.
+4. **More results**: four tabs. Synthesized demonstrations for the SMPL-X humanoid, for the G1 with Revo2 hands and
+   for the H2 with Sharpa Wave hands, one clip per kind of task; then long-horizon sequences and G1 body motion.
 5. **In numbers**: the paper's Tables 3, 4 and 5, cut down to what the three numbers stand on.
 6. **Citation** (BibTeX with a Copy button) and the acknowledgments.
 
@@ -30,7 +31,9 @@ python3 -m http.server 8000     # then open http://localhost:8000/
 | `tools/export_hero.py` | exports `media/hero` from the ManipSynth washer-door demonstration |
 | `media/video`, `media/poster`, `media/img` | clips, their posters, figures |
 | `20532_Synthesizing_Whole_Body_.pdf` | the paper; the Paper button links to it |
-| `tools/import_media.py` | copies the clips from the old page (`../ManipSynth-Tracker.github.io`) under new names and cuts the posters |
+| `tools/import_media.py` | copies the clips taken from the old page (`../ManipSynth-Tracker.github.io`) under new names and cuts the posters |
+| `tools/import_batch.py` | cuts the clips taken from the batch in `project_page_videos/` (view, start, end per clip), re-encodes them and cuts the posters |
+| `project_page_videos/` | the batch itself: 46 clips, 339 MB, with its own `README.md` (source and check of every clip). Not in git (`.gitignore`) |
 | `tools/pdf_figures.py` | cuts Fig. 3, 6 and 7 out of the paper PDF into `media/img` |
 | `tools/shots.mjs` | screenshots at several scroll positions, desktop and phone, to check the layout |
 | `vendor/three` | three.js r182 (MIT) |
@@ -43,8 +46,36 @@ The title, the authors and affiliations, the abstract, the numbers and the table
 If the paper changes, the places to update are: `<title>` and the title caption in `index.html`, `.abstract`, `dl.stats`,
 `section.numbers`, the BibTeX in the footer, and (for the figures) `tools/pdf_figures.py`.
 
-The G1 clips (step 5 and the "G1 body motion" tab) come from the old page; the paper does not report G1 or real-robot
-experiments, so step 5 is labelled "Beyond the paper".
+## Where the clips come from
+
+The teaser, steps 1, 2 and 4, the last choice of step 5 and the last tab come from the old page (`tools/import_media.py`).
+Step 3, the first two choices of step 5 and the first three tabs come from the batch (`tools/import_batch.py`).
+
+| place | clips | source |
+|---|---|---|
+| teaser | `teaser` | old page |
+| step 1, grasp anchors | `grasp_camera`, `grasp_binoculars`, `grasp_hammer` | old page; the batch has no grasp close-ups |
+| step 2, body motion | `body_*` (7) | old page; the batch has no sparse-control clips |
+| step 3, synthetic HOI | `syn_chair_overhead`, `syn_handover`, `syn_mop` | batch, SMPL-X humanoid, two views |
+| step 4, ManipTracker | `ref_*`, `trk_*` (3 pairs) | old page; the batch has no tracked rollouts |
+| step 5, other robots | `wide_g1_chair_overhead`, `wide_h2_chair_overhead` | batch, the whole frame with the hand close-up |
+| | `g1_sim_pickplace`, `g1_real_large` | old page: the only real-robot footage |
+| tab SMPL-X humanoid | `hum_*` (7) | batch, first view |
+| tab G1 + Revo2 | `g1syn_*` (10) | batch, main view |
+| tab H2 + Sharpa Wave | `h2syn_*` (9) | batch, main view |
+| tab Long-horizon and body motion | `long_*` (3), `g1body_*` (4) | old page |
+
+Things to keep in mind when changing the selection:
+
+- The batch's clips are synthesized demonstrations that passed their checks. They are not rollouts of a tracking
+  policy and not real-robot footage, and the page says so (lead text of step 5, the note under the tabs).
+- The paper reports neither G1 nor H2 experiments, so step 5 and the two robot tabs are labelled "Beyond the paper".
+- Left out of the batch on purpose: the humanoid's kick, balance beam and chair sit (their references start from
+  AMASS mocap clips, see `PULSE/examples/plan_kick.py`, `plan_terrain.py`, `plan_chair_sit.py`) and the G1 parkour
+  (edited BONES-SEED mocap). The page's title says "without human demonstration".
+- Also left out: the humanoid's throw, basketball and under-table pick (no check script; the basketball clip is
+  640x480 at 157 kb/s), and the H2 football kick (dark, low contrast).
+- The batch's clips carry a caption baked into the picture (task, seed, time, phase).
 
 ## The 3D scene of the first screen
 

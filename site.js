@@ -25,9 +25,9 @@
       { name: "R wrist", ids: ["body_rwrist"] },
     ],
     3: [
-      { name: "Clothes stand · 1 hand", ids: ["hoi_clothesstand"] },
-      { name: "Wooden chair · 2 hands", ids: ["hoi_woodchair"] },
-      { name: "Large table · 2 hands", ids: ["hoi_largetable"] },
+      { name: "Chair overhead · 2 hands", ids: ["syn_chair_overhead"] },
+      { name: "Mug · handover", ids: ["syn_handover"] },
+      { name: "Mop · 2 hands", ids: ["syn_mop"] },
       { name: "One template, varied", img: "augment", alt: "Four rows of a humanoid picking up, carrying and putting down a wooden chair, each with a different grasp and path",
         note: "The same interaction with other grasp poses, pre-grasp motions and transport paths." },
     ],
@@ -36,12 +36,14 @@
       { name: "Clothes stand", ids: ["ref_clothesstand", "trk_clothesstand"] },
       { name: "Large table", ids: ["ref_largetable", "trk_largetable"] },
     ],
+    // one clip fills the stage, two share it; `tags` are the labels in the corners
     5: [
-      { name: "Large object", ids: ["g1_sim_pickplace", "g1_real_large"], contain: true },
-      { name: "Tabletop", ids: ["g1_sim_tabletop", "g1_real_tabletop"], contain: true },
+      { name: "G1 · chair overhead", ids: ["wide_g1_chair_overhead"], tags: ["G1 + REVO2 · SYNTHESIZED"] },
+      { name: "H2 · chair overhead", ids: ["wide_h2_chair_overhead"], tags: ["H2 + SHARPA WAVE · SYNTHESIZED"] },
+      { name: "G1 · simulation and real", ids: ["g1_sim_pickplace", "g1_real_large"], tags: ["SIMULATION", "REAL WORLD"] },
     ],
   };
-  const NEXT = { 1: "Next: body motion", 2: "Next: synthetic HOI", 3: "Next: ManipTracker", 4: "Next: on the G1" };
+  const NEXT = { 1: "Next: body motion", 2: "Next: synthetic HOI", 3: "Next: ManipTracker", 4: "Next: other robots" };
 
   // ---- the stage: five steps, one showing. The section is tall and its content sticks, so scrolling down
   // walks through the steps; the rail and the Next button scroll the page to a step's place.
@@ -58,7 +60,7 @@
   function choose(n, i) {
     chosen[n] = i;
     const item = STEPS[n][i], panel = panelOf(n);
-    panel.classList.toggle("contain", !!item.contain);
+    panel.classList.toggle("solo", !!item.ids && item.ids.length === 1 && panel.classList.contains("duo"));
     panel.classList.toggle("still-on", !!item.img);
     const still = $(panel, ".still");
     if (still) {
@@ -66,10 +68,11 @@
       if (item.img) { still.src = `media/img/${item.img}.jpg`; still.alt = item.alt; $(panel, ".note").textContent = item.note; }
     }
     [...panel.querySelectorAll("video")].forEach((v, k) => {
-      if (item.img) { v.pause(); return; }
+      if (item.img || !item.ids[k]) { v.pause(); return; }
+      if (item.tags) $(v.parentElement, ".corner").textContent = item.tags[k];
       const c = clip(item.ids[k]);
       if (v.getAttribute("src") !== c.src) { v.poster = c.poster; v.src = c.src; }
-      if (n === step && inView) play(v);
+      if (n === step && inView && v.offsetParent) play(v);
     });
     [...thumbs.children].forEach((b, k) => b.setAttribute("aria-selected", String(k === i)));
   }
@@ -108,7 +111,7 @@
       const on = +p.dataset.step === step;
       p.classList.toggle("on", on);
       const moving = on && inView && !p.classList.contains("still-on");
-      for (const v of p.querySelectorAll("video")) { if (moving) play(v); else v.pause(); }
+      for (const v of p.querySelectorAll("video")) { if (moving && v.offsetParent) play(v); else v.pause(); }
     }
   }
   function goTo(n) { scrollTo({ top: where(Math.max(1, Math.min(N, n))), behavior: reduced ? "auto" : "smooth" }); }
@@ -135,29 +138,44 @@
   addEventListener("hashchange", fromHash);
   fromHash();
 
-  // ---- more results: three sets of clips in one grid
+  // ---- more results: sets of clips in one grid, [clip, title, kind]; a set's `wide` clips are 16:9, the others 4:3
   const SETS = {
-    long: [
+    human: { note: "Synthesized demonstrations for the SMPL-X humanoid, one per kind of task.", clips: [
+      ["hum_pickplace", "Camera, from table to table", "Pick and place"], ["hum_box_push", "Plastic box on a table", "Push"],
+      ["hum_trashcan", "Trash can", "Two-hand carry"], ["hum_floorlamp", "Floor lamp", "Pole carry"],
+      ["hum_stairs_carry", "Water bottle over stairs", "Carry on terrain"], ["hum_yogamat", "Yoga mat onto the shoulder", "Whole-body carry"],
+      ["hum_chair_spin", "Wooden chair", "Spin"],
+    ] },
+    g1: { note: "Beyond the paper: synthesized demonstrations for the Unitree G1 with Revo2 hands. They are references that pass the pipeline's checks, not rollouts of a policy.", clips: [
+      ["g1syn_pickplace", "Apple into a hutch", "Pick and place"], ["g1syn_handover", "Bowl, from hand to hand", "Handover"],
+      ["g1syn_stairs_carry", "Water bottle over stairs", "Carry on terrain"], ["g1syn_mop", "Mop", "Tool use"],
+      ["g1syn_yogamat", "Yoga mat on the shoulder", "Whole-body carry"], ["g1syn_chair_sit", "Pull out a chair and sit", "Sit"],
+      ["g1syn_undertable", "Ball from under a table", "Kneel and pick"], ["g1syn_throw", "Tennis ball at a box", "Overhand throw"],
+      ["g1syn_basketball", "Shot at a hoop", "Basketball"], ["g1syn_soccer", "Kick into a goal", "Football"],
+    ] },
+    h2: { note: "Beyond the paper: synthesized demonstrations for the Unitree H2 with Sharpa Wave hands. They are references that pass the pipeline's checks, not rollouts of a policy.", clips: [
+      ["h2syn_pickplace", "Pepper grinder into a hutch", "Pick and place"], ["h2syn_trashcan", "Trash can", "Two-hand carry"],
+      ["h2syn_pole", "Floor lamp", "Pole carry"], ["h2syn_box_push", "Crate on a table", "Push"],
+      ["h2syn_chair_sit", "Pull out a chair and sit", "Sit"], ["h2syn_chair_spin", "Wooden chair", "Spin"],
+      ["h2syn_yogamat", "Yoga mat on the shoulder", "Whole-body carry"], ["h2syn_throw", "Tennis ball at a box", "Overhand throw"],
+      ["h2syn_stairs", "Up the stairs", "Terrain"],
+    ] },
+    body: { wide: true, note: "Long sequences that chain several interactions, and sparse tracking on the G1: whole-body motion from a root path, a wrist path, or both.", clips: [
       ["long_woodchair", "Wooden chair", "Long sequence"], ["long_largetable", "Large table", "Long sequence"], ["long_plasticbox", "Plastic box", "Long sequence"],
-    ],
-    push: [
-      ["push_grasp2_forward", "Push forward", "Grasp A"], ["push_grasp2_backward", "Pull backward", "Grasp A"],
-      ["push_grasp3_forward", "Push forward", "Grasp B"], ["push_grasp3_backward", "Pull backward", "Grasp B"],
-    ],
-    g1: [
-      ["g1body_root", "Root", "Sparse tracking"], ["g1body_lwrist", "L wrist", "Sparse tracking"], ["g1body_root_lwrist", "Root + L wrist", "Sparse tracking"],
-      ["g1body_wrists", "L wrist + R wrist", "Sparse tracking"], ["g1body_root_wrists_look", "Root + L wrist + R wrist", "Sparse tracking"],
-      ["g1body_root_wrists_salute", "Root + L wrist + R wrist", "Sparse tracking"], ["g1body_rwrist_writing", "R wrist", "Writing"],
-    ],
+      ["g1body_root", "Root", "Sparse tracking"], ["g1body_root_lwrist", "Root + L wrist", "Sparse tracking"],
+      ["g1body_wrists", "L wrist + R wrist", "Sparse tracking"], ["g1body_rwrist_writing", "R wrist", "Writing"],
+    ] },
   };
   // clips play only while on screen
   const playing = new IntersectionObserver((entries) => {
     for (const e of entries) { if (e.intersectionRatio >= 0.4) play(e.target); else e.target.pause(); }
   }, { threshold: [0, 0.4] });
-  const grid = $(document, "#grid"), tabs = [...document.querySelectorAll(".tabs [data-set]")];
+  const grid = $(document, "#grid"), setNote = $(document, "#setnote"), tabs = [...document.querySelectorAll(".tabs [data-set]")];
   function showSet(id) {
     for (const v of grid.querySelectorAll("video")) playing.unobserve(v);
-    grid.replaceChildren(...SETS[id].map(([name, title, kind]) => {
+    grid.classList.toggle("wide16", !!SETS[id].wide);
+    setNote.textContent = SETS[id].note;
+    grid.replaceChildren(...SETS[id].clips.map(([name, title, kind]) => {
       const fig = document.createElement("figure");
       fig.className = "card";
       const v = document.createElement("video");
@@ -173,7 +191,7 @@
     for (const t of tabs) t.setAttribute("aria-selected", String(t.dataset.set === id));
   }
   for (const t of tabs) t.addEventListener("click", () => showSet(t.dataset.set));
-  showSet("long");
+  showSet("human");
   for (const v of document.querySelectorAll("video[data-autoplay]")) playing.observe(v);
 
   // ---- the citation's Copy button

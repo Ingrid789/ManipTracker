@@ -30,10 +30,6 @@ CLIPS = {
     "body_root": "part1_root.mp4",
     "body_lwrist": "part1_lwrist.mp4",
     "body_rwrist": "part1_rwrist.mp4",
-    # combined: synthetic HOI trajectories
-    "hoi_clothesstand": "part2_clothesstand_pickplace.mp4",
-    "hoi_woodchair": "part2_woodchair_pickplace.mp4",
-    "hoi_largetable": "part2_largetable_pickplace.mp4",
     # ManipTracker: the reference and the tracked rollout
     "ref_clothesstand": "part3_clothesstand_manipsynth.mp4",
     "trk_clothesstand": "part3_clothesstand_maniptracker.mp4",
@@ -44,22 +40,13 @@ CLIPS = {
     # G1
     "g1_sim_pickplace": "g1_interaction/web/simulation_pick_place.mp4",
     "g1_real_large": "g1_interaction/web/real_world_large_object.mp4",
-    "g1_sim_tabletop": "g1_interaction/web/simulation_table.mp4",
-    "g1_real_tabletop": "g1_interaction/web/real_world_tabletop.mp4",
     # gallery
     "long_woodchair": "woodchair_long.mp4",
     "long_largetable": "largetable_long.mp4",
     "long_plasticbox": "plasticbox_long.mp4",
-    "push_grasp2_forward": "smplx_push_pull/hex0_grasp2_human_forward.mp4",
-    "push_grasp2_backward": "smplx_push_pull/hex0_grasp2_human_backward.mp4",
-    "push_grasp3_forward": "smplx_push_pull/hex0_grasp3_human_forward.mp4",
-    "push_grasp3_backward": "smplx_push_pull/hex0_grasp3_human_backward.mp4",
     "g1body_root": "demo/root.mp4",
-    "g1body_lwrist": "demo/left_wrist_bones_seed_g1_reaching_up_R_003__A054_M.mp4",
     "g1body_root_lwrist": "demo/root_left_wrist_bones_seed_g1_reaching_up_R_003__A054_M.mp4",
     "g1body_wrists": "demo/two_wrists_bones_seed_g1_thinking_R_007__A053.mp4",
-    "g1body_root_wrists_look": "demo/root_two_wrists_bones_seed_g1_looking_around_horizontally_002__A053.mp4",
-    "g1body_root_wrists_salute": "demo/root_two_wrists_bones_seed_g1_salute_005__A053_M.mp4",
     "g1body_rwrist_writing": "demo/rl-video-step-3-writing-down.mp4",
 }
 IMAGES = {"overview.jpg": "page_overview.jpg", "teaser.png": "page_teaser.png", "icon.png": "manipsynth_icon.png"}
