@@ -87,7 +87,7 @@ demonstration `output/laundry_washer_swap/g1_laundry` (182.8 s, 9138 frames at 5
 
 | file | what | size |
 |---|---|---|
-| `scene.glb` | robot, washer, plush toy, jug and cap, one node per MuJoCo body, meshes decimated from 1.23 M to 156 k triangles, the motion at 15 keys a second in two clips (`robot`, `scene`), packed by gltfpack with meshopt compression | 1.30 MB (0.99 MB as GitHub Pages sends it, gzipped) |
+| `scene.glb` | robot, washer, plush toy, jug and cap, one node per MuJoCo body, meshes decimated from 1.23 M to 163 k triangles, the motion at 15 keys a second in two clips (`robot`, `scene`), packed by gltfpack with meshopt compression | 1.34 MB (1.03 MB as GitHub Pages sends it, gzipped) |
 | `room.spz` | the room as Gaussian splats, 162 k of 1.17 M: the row of machines with its counter and shelf, the wall it is set into, the floor in front, and the tubes and wire shelves of the garment rack opposite, which carries the toy. The ceiling, the other walls, the far side of the room, the scanned jug and the splats of the replaced machine are left out; the floor and the wall fade out at the cut | 1.60 MB |
 | `scene.json` | phases and steps of the motion, root and wrist paths of the first step, the grasp anchors | 19 kB (5 kB gzipped) |
 
@@ -108,7 +108,9 @@ npm install gltfpack                 # once; then put node_modules/.bin on PATH,
   panels of the two scanned machines turn soft. The rack keeps 0.42.
 - **How small the mesh is**: `ratio_for()` gives the share of triangles kept per body, and the gltfpack call sets the
   bits per position (14). With 12 bits, or with half the triangles, the jug's label tears and the door seal of the
-  washer breaks up. The toy's texture wraps the whole mesh, so its texture coordinates are looked up per corner
+  washer breaks up. The washer's front panel and door seal surround the porthole and keep more triangles (0.20 and
+  0.30): with 0.085 the simplifier laid triangles across the opening and the drum, with the toy in it, could not be
+  seen. `open_holes()` also removes any triangle that ends up away from the original surface. The toy's texture wraps the whole mesh, so its texture coordinates are looked up per corner
   after simplifying and vertices are split at the seams (`WRAPPED`); its texture is 320 px (`TEX_HEIGHT`).
 - **Loading**: `index.html` preloads the three assets and the modules in `<head>`, so they download while the page
   is parsed instead of after `hero.js` and its imports have arrived. Add a line there if `hero.js` gains an asset.

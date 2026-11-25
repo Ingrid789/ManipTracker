@@ -193,7 +193,8 @@ def ratio_for(body, mat):
     if body == "washer_drawer":
         return 0.16
     if body == "washer":
-        return 0.085
+        # the front panel and the door seal surround the porthole; with fewer triangles they close over it
+        return 0.20 if mat == "w_white_m" else 0.30 if mat == "w_gasket_blue" else 0.085
     if body == "bottle":
         return 0.03 if "label" in mat else 0.07
     if body == "bottle_cap":
@@ -201,6 +202,25 @@ def ratio_for(body, mat):
     if body == "toy":
         return 0.5
     return 0.10
+
+
+def open_holes(full, small, far=0.012):
+    """Simplifying a mesh that has an opening can leave triangles across the opening: the washer's front panel and
+    its door seal closed the porthole, and the drum behind it could not be seen. Triangles of `small` that lie
+    further than `far` metres from the surface of `full` are taken out."""
+    import trimesh
+    from scipy.spatial import cKDTree
+    tree = cKDTree(np.asarray(trimesh.sample.sample_surface(full, 400000, seed=0)[0]))
+    tri = np.asarray(small.vertices)[np.asarray(small.faces)]
+    cen = tri.mean(1)
+    probes = np.concatenate([cen[:, None], (tri + cen[:, None]) / 2], 1)          # the centre and three points around it
+    off = tree.query(probes.reshape(-1, 3))[0].reshape(-1, 4)
+    keep = (off > far).sum(1) < 2
+    if keep.all():
+        return small
+    out = trimesh.Trimesh(np.asarray(small.vertices), np.asarray(small.faces)[keep], process=False)
+    out.remove_unreferenced_vertices()
+    return out
 
 
 def load_model():
@@ -274,8 +294,10 @@ def body_meshes(mj, m):
                 uv = np.clip(corner_uv.reshape(-1, 2)[first], 0, 1)
             elif len(tm.faces) > 400:
                 target = max(300, int(len(tm.faces) * ratio_for(body, key)))
-                v2, f2 = fast_simplification.simplify(np.asarray(tm.vertices, np.float32), np.asarray(tm.faces), target_count=target, agg=5)
+                v2, f2 = fast_simplification.simplify(np.asarray(tm.vertices, np.float32), np.asarray(tm.faces), target_count=target, agg=3 if body == "washer" and key in ("w_white_m", "w_gasket_blue") else 5)
                 tm = trimesh.Trimesh(v2, f2, process=tex < 0)
+                if body.startswith("washer"):
+                    tm = open_holes(trimesh.Trimesh(v, f, process=False), tm)
             if uv is None and tex >= 0 and m.mesh_texcoordnum[i]:
                 uv = uv0[cKDTree(v).query(np.asarray(tm.vertices))[1]]
         elif t == mj.mjtGeom.mjGEOM_BOX:
