@@ -44,7 +44,7 @@ python3 -m http.server 8000     # then open http://localhost:8000/
 ## Where the text comes from
 
 The title, the authors and affiliations, the abstract, the numbers and the tables follow the paper PDF in this folder.
-Author names link to a homepage, or to Google Scholar where there is none, and affiliations use their short forms (GIEC is the Guangzhou Institute of Energy Conversion).
+Author names link to a homepage, or to Google Scholar where there is none, and affiliations use their short forms, except the Guangzhou Institute of Energy Conversion, which is spelled out because its abbreviation is little known.
 If the paper changes, the places to update are: `<title>` and the title caption in `index.html`, `.abstract`, `dl.stats`,
 `section.numbers`, the BibTeX in the footer, and (for the figures) `tools/pdf_figures.py`.
 
