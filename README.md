@@ -109,6 +109,8 @@ npm install gltfpack                 # once; then put node_modules/.bin on PATH,
   washer breaks up.
 - **Loading**: `index.html` preloads the three assets and the modules in `<head>`, so they download while the page
   is parsed instead of after `hero.js` and its imports have arrived. Add a line there if `hero.js` gains an asset.
+  `hero.js` fetches the splat itself and hands Spark the bytes: given a URL, Spark fetches from its worker, which
+  does not use the preloaded download, and the file comes down twice.
   The largest download is now Spark itself (2.85 MB, 0.98 MB gzipped).
 - **The story's timing**: `CHAPTERS` in `hero.js` holds the scroll fraction where each caption starts, and `draw()`
   maps the scroll to motion time: step 1 plays over 0.27–0.42, steps 2–6 over 0.42–0.80, step 7 over 0.80–0.985. The
