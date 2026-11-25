@@ -86,8 +86,16 @@ async function start() {
 
   // the room: Gaussian splats, drawn by Spark, which sorts them in a worker and asks for a new frame when it is done
   scene.add(new SparkRenderer({ renderer, onDirty: () => { dirty = true; } }));
-  const room = new SplatMesh({ url: ASSETS.splat });
-  const [gltf, meta] = await Promise.all([new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(ASSETS.glb), fetch(ASSETS.meta).then((r) => r.json()), room.initialized]);
+  // The splat's bytes are fetched here and handed over. Given a URL, Spark fetches from its worker, which cannot use
+  // the download that index.html preloads, and the file would come down a second time.
+  const splat = async () => {
+    const r = await fetch(ASSETS.splat);
+    if (!r.ok) throw new Error(`${ASSETS.splat}: ${r.status}`);
+    const mesh = new SplatMesh({ fileBytes: new Uint8Array(await r.arrayBuffer()), fileName: ASSETS.splat.split("/").pop() });
+    await mesh.initialized;
+    return mesh;
+  };
+  const [gltf, meta, room] = await Promise.all([new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(ASSETS.glb), fetch(ASSETS.meta).then((r) => r.json()), splat()]);
   scene.add(room);
 
   // light for the robot and the washer: the room's ceiling lamp, soft light from all around, a shadow on the splat floor
