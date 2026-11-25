@@ -28,7 +28,7 @@ python3 -m http.server 8000     # then open http://localhost:8000/
 |---|---|
 | `index.html`, `site.css`, `site.js` | the page; the clip lists are `STEPS` and `SETS` at the top of `site.js` |
 | `hero.js` | the 3D first screen |
-| `media/hero` | its assets: robot, washer, jug and cap (`scene.glb`), the room's Gaussian splat (`room.spz`), steps, paths and anchors (`scene.json`) |
+| `media/hero` | its assets: robot, washer, plush toy, jug and cap (`scene.glb`), the room's Gaussian splat (`room.spz`), steps, paths and anchors (`scene.json`) |
 | `tools/export_hero.py` | exports `media/hero` from the ManipSynth laundry demonstration |
 | `media/video`, `media/poster`, `media/img` | clips, their posters, figures |
 | `20532_Synthesizing_Whole_Body_.pdf` | the paper; the Paper button links to it |
@@ -80,52 +80,55 @@ Things to keep in mind when changing the selection:
 
 ## The 3D scene of the first screen
 
-A G1 humanoid with Revo2 hands does a laundry task in seven steps: it opens the washing machine, fetches the
-detergent jug from the counter, unscrews its cap, opens the detergent drawer, pours, closes the drawer and closes
-the door. The scene is the ManipSynth demonstration `output/laundry_washer_swap/g1_laundry` (159.5 s, 7974 frames
-at 50 fps), exported by `tools/export_hero.py` into `media/hero`:
+A G1 humanoid with Revo2 hands does a laundry task in eight steps: it opens the washing machine, takes a dirty plush
+toy from the garment rack behind it and drops it into the drum, fetches the detergent jug from the counter, unscrews
+its cap, opens the detergent drawer, pours, closes the drawer and closes the door. The scene is the ManipSynth
+demonstration `output/laundry_washer_swap/g1_laundry` (182.8 s, 9138 frames at 50 fps), exported by `tools/export_hero.py` into `media/hero`:
 
 | file | what | size |
 |---|---|---|
-| `scene.glb` | robot, washer, jug and cap, one node per MuJoCo body, meshes decimated from 1.23 M to 154 k triangles, the motion at 15 keys a second in two clips (`robot`, `scene`), packed by gltfpack with meshopt compression | 1.22 MB (0.92 MB as GitHub Pages sends it, gzipped) |
-| `room.spz` | the room as Gaussian splats, 143 k of 1.17 M: the row of machines with its counter and shelf, the wall it is set into, the floor in front. The ceiling, the other walls, the far side of the room, the scanned jug and the splats of the replaced machine are left out; the floor and the wall fade out at the cut | 1.41 MB |
+| `scene.glb` | robot, washer, plush toy, jug and cap, one node per MuJoCo body, meshes decimated from 1.23 M to 156 k triangles, the motion at 15 keys a second in two clips (`robot`, `scene`), packed by gltfpack with meshopt compression | 1.30 MB (0.99 MB as GitHub Pages sends it, gzipped) |
+| `room.spz` | the room as Gaussian splats, 162 k of 1.17 M: the row of machines with its counter and shelf, the wall it is set into, the floor in front, and the tubes and wire shelves of the garment rack opposite, which carries the toy. The ceiling, the other walls, the far side of the room, the scanned jug and the splats of the replaced machine are left out; the floor and the wall fade out at the cut | 1.60 MB |
 | `scene.json` | phases and steps of the motion, root and wrist paths of the first step, the grasp anchors | 19 kB (5 kB gzipped) |
 
-Together 2.3 MB on the wire. The scene of the one-step door demonstration that this replaces took 11.5 MB.
+Together 2.6 MB on the wire (2.3 MB before the toy step, whose rack takes 0.2 MB of splats). The scene of the one-step door demonstration that this replaces took 11.5 MB.
 
 ```bash
 npm install gltfpack                 # once; then put node_modules/.bin on PATH, or set GLTFPACK to the binary
 /home/lenovo/miniconda3/envs/robosim/bin/python tools/export_hero.py    # needs mujoco, trimesh, fast_simplification
 ```
 
-- **What the splat keeps**: the boxes `ROW` and `FLOOR` at the top of the script, in the row's coordinates (along the
-  row, into the room, up). Widen them to show more of the room, at the cost of a larger file.
+- **What the splat keeps**: the boxes `ROW`, `FLOOR` and `RACK` at the top of the script, in the row's coordinates
+  (along the row, into the room, up). Widen them to show more of the room, at the cost of a larger file. `RACK` takes
+  only splats smaller than `RACK_SIZE`: the rack's tubes and wires, without the cabinets and the wall behind it, so a
+  camera on the far side of the rack sees the robot through it. The scan has the rack in scraps, and it shows.
 - **How small the splat is**: `KEEP` is the share of each region's splats that stays (those with the most opacity
   times area first), `BITS` the precision of positions (9: 2 mm), `COARSE` the rounding of opacity, colour, size and
   rotation. These were chosen by comparing screenshots: at `KEEP = 0.44, 0.26` the labels on the counter and the
-  panels of the two scanned machines turn soft.
+  panels of the two scanned machines turn soft. The rack keeps 0.42.
 - **How small the mesh is**: `ratio_for()` gives the share of triangles kept per body, and the gltfpack call sets the
   bits per position (14). With 12 bits, or with half the triangles, the jug's label tears and the door seal of the
-  washer breaks up.
+  washer breaks up. The toy's texture wraps the whole mesh, so its texture coordinates are looked up per corner
+  after simplifying and vertices are split at the seams (`WRAPPED`); its texture is 320 px (`TEX_HEIGHT`).
 - **Loading**: `index.html` preloads the three assets and the modules in `<head>`, so they download while the page
   is parsed instead of after `hero.js` and its imports have arrived. Add a line there if `hero.js` gains an asset.
   `hero.js` fetches the splat itself and hands Spark the bytes: given a URL, Spark fetches from its worker, which
   does not use the preloaded download, and the file comes down twice.
   The largest download is now Spark itself (2.85 MB, 0.98 MB gzipped).
 - **The story's timing**: `CHAPTERS` in `hero.js` holds the scroll fraction where each caption starts, and `draw()`
-  maps the scroll to motion time: step 1 plays over 0.27–0.42, steps 2–6 over 0.42–0.80, step 7 over 0.80–0.985. The
-  camera path is `KEYS`. The caption texts are in `index.html` (`.hud .chapter`); the pill that names the step
-  ("3/7 · Unscrew the cap") is `#hero-step`, filled from `steps` in `scene.json`.
-- **The anchors of Part I**: on the door they are the fitted hook grasp of `g1_open_door/grasps.json`. On the jug,
-  its cap and the drawer they are the fingertip positions at the frame the hand takes hold, read from the motion.
+  maps the scroll to motion time: step 1 plays over 0.27–0.42, steps 2–7 over 0.42–0.80, step 8 over 0.80–0.985. The
+  camera path is `KEYS`; it stays on the machines' side of the rack except while the robot takes the toy. The caption texts are in `index.html` (`.hud .chapter`); the pill that names the step
+  ("4/8 · Unscrew the cap") is `#hero-step`, filled from `steps` in `scene.json`.
+- **The anchors of Part I**: on the door they are the fitted hook grasp of `g1_open_door/grasps.json`. On the toy,
+  the jug, its cap and the drawer they are the fingertip positions at the frame the hand takes hold, read from the motion.
 - **The last chapter** replays the same reference motion, with a blue see-through copy of the robot a moment ahead as
   the tracking target. There is no simulated rollout of this motion yet; once there is one, bake it as a third clip
   and play it on the solid robot.
-- **The length of the scroll**: `.scrolly { height }` in `site.css` (820vh for the seven steps).
+- **The length of the scroll**: `.scrolly { height }` in `site.css` (900vh for the eight steps).
 - **Frame rate**: the splats are bound by fill rate. The canvas has no multisampling, and `hero.js` lowers the
   drawing resolution while the scene moves if frames come slower than about 40 a second (`STEPS`, `adapt()`); a frame
   that stays on screen is drawn at full resolution. The 60 frames a second measured on an Intel UHD 770 at 1440×810
-  were with the earlier scene of 523 k splats; this one has 143 k and has not been timed on a GPU.
+  were with the earlier scene of 523 k splats; this one has 162 k and has not been timed on a GPU.
 - Without WebGL, or if an asset fails to load, the teaser image shows instead and the captions still follow the scroll.
 
 ## Still to fill in

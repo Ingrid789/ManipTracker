@@ -4,20 +4,22 @@
 // everything: the motion time of the robot, the camera, what is visible, and which caption shows.
 //   0.00  title          a G1 humanoid with Revo2 hands stands in a laundry room, in front of a washing machine
 //   0.10  Part I         grasp candidates appear around the door's rim; filtering keeps the anchors in its pull
-//                        recess; then the anchors on the detergent jug, its cap and the drawer show
-//   0.24  Part II        root and right wrist paths are drawn; the robot walks to the machine and pulls the door open
-//   0.42  Combine        the long task: fetch the jug, unscrew its cap, open the drawer, pour, close the drawer
+//                        recess; then the anchors on the plush toy, the detergent jug, its cap and the drawer show
+//   0.27  Part II        root and right wrist paths are drawn; the robot walks to the machine and pulls the door open
+//   0.42  Combine        the long task: take the plush toy from the rack and drop it into the drum, fetch the jug,
+//                        unscrew its cap, open the drawer, pour, close the drawer
 //   0.80  ManipTracker   the last step, closing the door: the reference as a ghost, the robot a moment behind it
 //
 // The scene is exported by tools/export_hero.py into media/hero:
-//   scene.glb   robot, washer, jug and cap, one node per body, with the motion baked in two clips ("robot", "scene")
-//   room.spz    the laundry room as Gaussian splats, cut down to the machine row and the floor in front of it
+//   scene.glb   robot, washer, toy, jug and cap, one node per body, with the motion baked in two clips ("robot", "scene")
+//   room.spz    the laundry room as Gaussian splats, cut down to the machine row, the floor in front of it and the
+//               garment rack opposite
 //   scene.json  the motion's phases and steps, the root and wrist paths, the grasp anchors on the objects
 // Its frame: x along the row of machines, y up from the floor, z from the machines into the room, in metres.
 import * as THREE from "three";
 
 const ASSETS = { glb: "media/hero/scene.glb", splat: "media/hero/room.spz", meta: "media/hero/scene.json" };
-const CHAPTERS = [0, 0.10, 0.24, 0.42, 0.80, 1];  // where each caption starts; the last entry is the end
+const CHAPTERS = [0, 0.10, 0.27, 0.42, 0.80, 1];  // where each caption starts; the last entry is the end
 
 const section = document.querySelector(".scrolly");
 const canvas = document.querySelector("#hero-canvas");
@@ -168,11 +170,13 @@ async function start() {
   const arc = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPts), 48, 0.0045, 8), new THREE.MeshBasicMaterial({ color: GOLD, transparent: true, opacity: 0 }));
   arc.renderOrder = 5;
   door.add(arc);
-  // the anchors of the other objects of this task: on the jug's handle, on its cap, on the drawer's front
-  const held = meta.held.flatMap((h) => h.points.map((p) => {
+  // the anchors of the other objects of this task: on the toy, on the jug's handle, on its cap, on the drawer's front
+  // (the toy's show first, while the camera looks at the rack; the others when it has turned to the machines)
+  const held = meta.held.flatMap((h, k) => h.points.map((p) => {
     const m = new THREE.Mesh(dot, new THREE.MeshBasicMaterial({ color: GOLD, depthTest: false, transparent: true }));
     m.position.set(...p);
     m.renderOrder = 6;
+    m.userData.from = k === 0 ? 0.214 : 0.244;
     fixture.getObjectByName(h.node).add(m);
     return m;
   }));
@@ -194,20 +198,27 @@ async function start() {
   // ---- the camera: positions and targets along the scroll; `follow` pulls the target toward the robot
   const DOOR = V(0.52, 0.68, 0.82), RECESS = V(0.63, 0.74, 0.8);
   const KEYS = [
-    { p: 0.00, pos: V(2.75, 1.6, 4.3), tgt: V(0.5, 0.85, 1.0), follow: 0 },
-    { p: 0.095, pos: V(2.45, 1.55, 4.3), tgt: V(0.5, 0.82, 1.0), follow: 0 },
+    { p: 0.00, pos: V(3.35, 1.75, 2.3), tgt: V(0.3, 0.8, 1.45), follow: 0 },       // machines right, rack left
+    { p: 0.095, pos: V(3.1, 1.7, 2.3), tgt: V(0.35, 0.8, 1.4), follow: 0 },
     { p: 0.14, pos: V(1.42, 0.98, 1.95), tgt: RECESS.clone().add(V(-0.06, -0.04, 0)), follow: 0 },
     { p: 0.205, pos: V(1.2, 1.0, 1.72), tgt: RECESS.clone().add(V(-0.04, -0.02, 0)), follow: 0 },
-    { p: 0.24, pos: V(1.75, 1.5, 2.55), tgt: V(0.72, 0.95, 0.7), follow: 0 },        // jug, cap and drawer
-    { p: 0.30, pos: V(2.7, 2.35, 4.05), tgt: V(0.55, 0.6, 1.25), follow: 0 },         // the paths, from above
+    { p: 0.228, pos: V(1.6, 1.2, 1.7), tgt: V(-0.05, 0.5, 2.69), follow: 0 },         // the toy on the rack
+    { p: 0.238, pos: V(1.6, 1.2, 1.7), tgt: V(-0.05, 0.5, 2.69), follow: 0 },
+    { p: 0.26, pos: V(1.75, 1.5, 2.3), tgt: V(0.72, 0.95, 0.7), follow: 0 },          // jug, cap and drawer
+    { p: 0.268, pos: V(1.75, 1.5, 2.3), tgt: V(0.72, 0.95, 0.7), follow: 0 },
+    { p: 0.305, pos: V(2.6, 2.6, 2.3), tgt: V(0.55, 0.5, 1.3), follow: 0 },           // the paths, from above
     { p: 0.36, pos: V(2.05, 1.4, 2.2), tgt: V(0.45, 0.72, 1.05), follow: 0.15 },
-    { p: 0.42, pos: V(1.9, 1.45, 2.7), tgt: V(0.4, 0.7, 1.1), follow: 0.2 },          // the door is open
-    { p: 0.48, pos: V(-1.0, 1.6, 2.65), tgt: V(0.95, 0.95, 0.95), follow: 0.35 },     // from the left: the counter
-    { p: 0.66, pos: V(-0.95, 1.6, 2.55), tgt: V(0.9, 0.95, 1.0), follow: 0.35 },
-    { p: 0.70, pos: V(-0.8, 1.5, 2.2), tgt: V(0.45, 0.88, 1.0), follow: 0.15 },       // the drawer
+    { p: 0.42, pos: V(1.9, 1.45, 2.3), tgt: V(0.4, 0.7, 1.1), follow: 0.2 },          // the door is open
+    { p: 0.45, pos: V(1.9, 1.5, 4.0), tgt: V(0.0, 0.8, 2.3), follow: 0.2 },           // from behind the rack: the toy
+    { p: 0.482, pos: V(1.8, 1.5, 4.0), tgt: V(0.0, 0.8, 2.3), follow: 0.2 },
+    { p: 0.512, pos: V(1.9, 1.4, 2.5), tgt: V(0.45, 0.65, 1.0), follow: 0.2 },        // into the drum
+    { p: 0.532, pos: V(1.85, 1.4, 2.45), tgt: V(0.45, 0.65, 1.0), follow: 0.2 },
+    { p: 0.565, pos: V(-1.0, 1.6, 2.3), tgt: V(0.95, 0.95, 0.95), follow: 0.35 },     // from the left: the counter
+    { p: 0.685, pos: V(-0.95, 1.6, 2.25), tgt: V(0.9, 0.95, 1.0), follow: 0.35 },
+    { p: 0.72, pos: V(-0.8, 1.5, 2.2), tgt: V(0.45, 0.88, 1.0), follow: 0.15 },       // the drawer
     { p: 0.80, pos: V(-0.75, 1.5, 2.15), tgt: V(0.42, 0.85, 1.05), follow: 0.15 },
-    { p: 0.86, pos: V(2.3, 1.65, 3.3), tgt: V(0.4, 0.75, 1.1), follow: 0.25 },        // back to the right: the door
-    { p: 1.00, pos: V(1.75, 1.45, 3.3), tgt: V(0.35, 0.74, 1.1), follow: 0.3 },
+    { p: 0.86, pos: V(2.5, 1.65, 2.3), tgt: V(0.4, 0.75, 1.1), follow: 0.25 },        // back to the right: the door
+    { p: 1.00, pos: V(2.1, 1.5, 2.3), tgt: V(0.35, 0.74, 1.1), follow: 0.3 },
   ];
   const camPos = V(), camTgt = V(), focus = V();
   let wide = false;
@@ -247,7 +258,7 @@ async function start() {
     }
 
     // Part I: candidates pop in one after another; filtering leaves the anchors in the pull recess
-    const kept = ease(p, 0.17, 0.20), gone = ease(p, 0.265, 0.285);
+    const kept = ease(p, 0.17, 0.20), gone = ease(p, 0.268, 0.285);
     marks.forEach((m, i) => {
       const shown = ease(p, 0.115 + i * 0.0014, 0.13 + i * 0.0014) * (1 - gone);
       const s = 0.0095 * (i < anchors.length ? shown * mix(1, 1.3, kept) * (1 + 0.1 * kept * Math.sin(time * 3 + i)) : shown * (1 - kept));
@@ -257,13 +268,14 @@ async function start() {
     arc.material.opacity = kept * (1 - gone);
     arc.visible = arc.material.opacity > 0.01;
     held.forEach((m, i) => {
-      const s = 0.011 * ease(p, 0.212 + i * 0.002, 0.226 + i * 0.002) * (1 - gone) * (1 + 0.1 * Math.sin(time * 3 + i));
+      const from = m.userData.from + (i % 6) * 0.0015;
+      const s = 0.011 * ease(p, from, from + 0.012) * (1 - (from < 0.24 ? Math.max(gone, ease(p, 0.24, 0.25)) : gone)) * (1 + 0.1 * Math.sin(time * 3 + i));
       m.visible = s > 1e-4;
       m.scale.setScalar(Math.max(1e-4, s));
     });
 
     // Part II: the paths are drawn
-    const drawn = ease(p, 0.25, 0.31), fade = 1 - ease(p, 0.335, 0.365);  // gone before the camera comes close
+    const drawn = ease(p, 0.272, 0.32), fade = 1 - ease(p, 0.335, 0.365);  // gone before the camera comes close
     for (const tr of trails) {
       const n = Math.round(tr.n * drawn);
       tr.beads.count = n; tr.line.geometry.setDrawRange(0, n);

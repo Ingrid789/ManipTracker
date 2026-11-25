@@ -2,11 +2,11 @@
 
 Reads   <src>/g1_laundry/{scene_laundry.xml, motion.npz}, <src>/g1_open_door/grasps.json, <src>/placement.json
         and the room's Gaussian splat.
-Writes  media/hero/scene.glb   the G1 + Revo2 robot, the washer, the detergent jug and its cap: one node per MuJoCo
+Writes  media/hero/scene.glb   the G1 + Revo2 robot, the washer, the plush toy, the jug and its cap: one node per MuJoCo
                                body in the bodies' own hierarchy, decimated meshes, the motion baked as joint tracks
                                (clips "robot" and "scene"), then packed by gltfpack (meshopt compression)
         media/hero/room.spz    the part of the room's splat that the scene needs: the machine row with its counter and
-                               shelf, the wall it is set into, the floor in front of it. The ceiling, the other three
+                               shelf, the wall it is set into, the floor in front of it, the garment rack opposite. The ceiling, the other three
                                walls, both ends of the room, the splats of the replaced machine and of the scanned jug
                                are left out, and so are the splats that add least to the picture.
         media/hero/scene.json  phases, steps, root and wrist paths, the grasp anchors on the objects
@@ -41,6 +41,8 @@ FLOOR_Z = -0.025           # the floor drawn by the splats in front of the machi
 STEP = 2                   # keys handed to gltfpack: every STEP-th frame of the 50 fps motion
 KEY_RATE = 15              # keys per second that gltfpack keeps; hero.js interpolates between them
 GLASS = ("door_glass", "Material_28", "material__225")
+WRAPPED = ("toy",)          # bodies whose texture wraps the whole mesh
+TEX_HEIGHT = dict(toy_dirty=320)   # pixels; the jug's label keeps 560
 
 P = json.load(open(SRC / "placement.json"))
 O, U, N = (np.array(P[k]) for k in ("row_origin", "row_u", "row_n"))
@@ -56,9 +58,13 @@ def to_page(p):
 # regions in row coordinates: u along the row, n into the room, z up. `fade` is the width over which a region's
 # splats thin out towards its border, so that the room ends in the page's background and not in an edge.
 ROW = dict(u=(-1.75, 3.05), n=(-0.12, 1.42), z=(0.0, 2.30))     # machines, counter, shelf, and the wall they are set into
-FLOOR = dict(u=(-1.75, 3.05), n=(0.55, 3.05), z=(-0.2, 0.07))
+FLOOR = dict(u=(-1.75, 3.05), n=(0.55, 3.40), z=(-0.2, 0.07))   # reaches below the rack
+# the garment rack opposite the machines, which carries the plush toy: its thin tubes and wire shelves only (small
+# splats), without the cabinets behind it, so that a camera on the far side still sees the machines through it
+RACK = dict(u=(-0.75, 1.85), n=(2.36, 2.84), z=(0.05, 1.72))
+RACK_SIZE = 0.08                    # largest splat radius that counts as part of the rack, in metres
 FADE = 0.7
-KEEP = dict(row=0.50, floor=0.30)   # share of each region's splats that is kept, those that add most to the picture first
+KEEP = dict(row=0.50, floor=0.30, rack=0.42)   # share of each region's splats that is kept, those that add most to the picture first
 BITS = 9                            # fractional bits of a position: 2 mm steps
 # The other attributes are bytes in the file. Rounding them to a coarser step leaves fewer distinct values, which gzip
 # stores in fewer bits. Steps for opacity, colour, log size and rotation; chosen by comparing screenshots.
@@ -126,17 +132,18 @@ def export_splat():
 
     row = inside(co, ROW)
     floor = inside(co, FLOOR) & ~row
+    rack = inside(co, RACK) & ~row & ~floor & (np.exp(scale.max(1)) < RACK_SIZE)
     s = lambda t: np.clip(t, 0, 1) ** 2 * (3 - 2 * np.clip(t, 0, 1))
     ends = s(np.minimum(co["u"] - ROW["u"][0], ROW["u"][1] - co["u"]) / FADE)        # both ends of the row
     top = s((ROW["z"][1] - co["z"]) / 0.45)                                           # the wall above the shelf
     front = s((FLOOR["n"][1] - co["n"]) / FADE)                                       # the floor towards the room
-    alpha = alpha * ends * np.where(row, top, front)
-    ok = (row | floor) & ~old & (alpha > 0.05) & (np.exp(scale.max(1)) < 0.45)
+    alpha = alpha * ends * np.where(row, top, np.where(rack, 1.0, front))
+    ok = (row | floor | rack) & ~old & (alpha > 0.05) & (np.exp(scale.max(1)) < 0.45)
     # what a splat adds to the picture: its opacity times the area of its disc
     area = np.exp(np.sort(scale, 1)[:, 1:].sum(1))
     score = alpha * np.minimum(area, np.quantile(area[ok], 0.98))
     keep = np.zeros(len(a), bool)
-    for name, region in (("row", row), ("floor", floor)):
+    for name, region in (("row", row), ("floor", floor), ("rack", rack)):
         idx = np.where(region & ok)[0]
         idx = idx[np.argsort(-score[idx])][:int(len(idx) * KEEP[name])]
         keep[idx] = True
@@ -191,6 +198,8 @@ def ratio_for(body, mat):
         return 0.03 if "label" in mat else 0.07
     if body == "bottle_cap":
         return 0.08
+    if body == "toy":
+        return 0.5
     return 0.10
 
 
@@ -235,11 +244,39 @@ def body_meshes(mj, m):
                 uv0 = np.zeros((len(v), 2)); uv0[f.reshape(-1)] = tc[ft.reshape(-1)]
             tm = trimesh.Trimesh(v, f, process=tex < 0)
             before += len(tm.faces)
-            if len(tm.faces) > 400:
+            if body in WRAPPED and tex >= 0 and m.mesh_texcoordnum[i]:
+                # a texture that wraps the whole mesh has seams, where a vertex has two texture coordinates: the mesh
+                # is simplified first, then every corner looks up the coordinate of the nearest original corner in
+                # its own triangle's neighbourhood, and vertices are split where the corners disagree
+                target = max(300, int(len(f) * ratio_for(body, key)))
+                v2, f2 = fast_simplification.simplify(v.astype(np.float32), f, target_count=target, agg=3)
+                v2, f2 = np.asarray(v2, np.float64), np.asarray(f2)
+                cen = v[f].mean(1)
+                near = cKDTree(cen).query(v2[f2].mean(1))[1]                 # the original triangle closest to each new one
+                # coordinates of the new corners in the plane of that original triangle (barycentric, clamped)
+                A, B, C = (v[f[near, k]] for k in range(3))
+                tA, tB, tC = (tc[ft[near, k]] for k in range(3))
+                corner_uv = np.zeros((len(f2), 3, 2))
+                for k in range(3):
+                    p = v2[f2[:, k]]
+                    e0, e1, e2 = B - A, C - A, p - A
+                    d00, d01, d11 = (e0 * e0).sum(1), (e0 * e1).sum(1), (e1 * e1).sum(1)
+                    d20, d21 = (e2 * e0).sum(1), (e2 * e1).sum(1)
+                    den = np.maximum(d00 * d11 - d01 * d01, 1e-18)
+                    bv, bw = (d11 * d20 - d01 * d21) / den, (d00 * d21 - d01 * d20) / den
+                    bv, bw = np.clip(bv, -0.5, 1.5), np.clip(bw, -0.5, 1.5)
+                    corner_uv[:, k] = tA + bv[:, None] * (tB - tA) + bw[:, None] * (tC - tA)
+                nrm_v = np.asarray(trimesh.Trimesh(v2, f2, process=False).vertex_normals)
+                keyed = np.concatenate([f2.reshape(-1, 1), np.round(corner_uv.reshape(-1, 2) * 512)], 1)
+                _, first, inv = np.unique(keyed, axis=0, return_index=True, return_inverse=True)
+                idx = f2.reshape(-1)[first]
+                tm = trimesh.Trimesh(v2[idx], inv.reshape(-1, 3), vertex_normals=nrm_v[idx], process=False)
+                uv = np.clip(corner_uv.reshape(-1, 2)[first], 0, 1)
+            elif len(tm.faces) > 400:
                 target = max(300, int(len(tm.faces) * ratio_for(body, key)))
                 v2, f2 = fast_simplification.simplify(np.asarray(tm.vertices, np.float32), np.asarray(tm.faces), target_count=target, agg=5)
                 tm = trimesh.Trimesh(v2, f2, process=tex < 0)
-            if tex >= 0 and m.mesh_texcoordnum[i]:
+            if uv is None and tex >= 0 and m.mesh_texcoordnum[i]:
                 uv = uv0[cKDTree(v).query(np.asarray(tm.vertices))[1]]
         elif t == mj.mjtGeom.mjGEOM_BOX:
             tm = trimesh.creation.box(extents=2 * m.geom_size[g])
@@ -311,7 +348,7 @@ def local_poses(mj, m, d, q):
     return T, Q
 
 
-def label_jpeg(m, t, height=560):
+def texture_jpeg(m, t, height=560):
     from PIL import Image
     w, h, adr = int(m.tex_width[t]), int(m.tex_height[t]), int(m.tex_adr[t])
     img = Image.fromarray(m.tex_data[adr:adr + w * h * 3].reshape(h, w, 3))
@@ -337,7 +374,7 @@ def export_glb():
         rgba = [*srgb_to_linear(s["rgba"][:3]).round(4).tolist(), round(float(s["rgba"][3]), 3)]
         pbr = dict(baseColorFactor=rgba, metallicFactor=s["metal"], roughnessFactor=s["rough"])
         if s["tex"] >= 0:
-            images.append(dict(bufferView=g.view(label_jpeg(m, s["tex"])), mimeType="image/jpeg"))
+            images.append(dict(bufferView=g.view(texture_jpeg(m, s["tex"], TEX_HEIGHT.get(k, 560))), mimeType="image/jpeg"))
             textures.append(dict(source=len(images) - 1, sampler=0))
             pbr.update(baseColorTexture=dict(index=len(textures) - 1), baseColorFactor=[1, 1, 1, 1])
         mat = dict(name=k, pbrMetallicRoughness=pbr)
@@ -405,7 +442,8 @@ def export_glb():
           f"{len(channels['robot'])} + {len(channels['scene'])} tracks, {len(frames)} keys in")
 
 
-STEPS = [("Open the washer door", "open_door:stand", "open_door:stand_end"), ("Fetch the detergent", "walk_to_counter", "raise_jug"),
+STEPS = [("Open the washer door", "open_door:stand", "open_door:stand_end"), ("Load the plush toy", "walk_to_rack", "retract_toy"),
+         ("Fetch the detergent", "walk_to_counter", "raise_jug"),
          ("Unscrew the cap", "reach_cap", "release_cap"), ("Open the drawer", "walk_to_washer", "release_drawer"),
          ("Pour", "reach_pour", "retract_pour"), ("Close the drawer", "reach_push", "release_push"), ("Close the door", "walk_to_door", "stand")]
 
@@ -419,7 +457,7 @@ def export_meta():
     ids = {k: m.body(v).id for k, v in track.items()}
     every = 5                                            # the paths cover the first step, which is the one hero.js draws
     paths = {k: [] for k in track}
-    for i in range(0, int(np.where(phase == "walk_to_counter")[0][0]), every):
+    for i in range(0, int(np.where(phase == "walk_to_rack")[0][0]), every):
         d.qpos[:] = q[i]; mj.mj_kinematics(m, d)
         for k, b in ids.items():
             paths[k].append(to_page(d.xpos[b]).round(3).tolist())
@@ -439,7 +477,7 @@ def export_meta():
     anchors = {name: [dict(finger=f, r=round(g["report"][f]["r_mm"] / 1000, 4), phi=round(g["report"][f]["phi_deg"], 2)) for f in g["contact_fingers"]]
                for name, g in grasps.items()}
     held = []
-    for node, side, key, fingers in (("bottle", "right", "lift_jug", "thumb index middle ring pinky"), ("bottle_cap", "left", "unscrew_cap", "thumb index middle"),
+    for node, side, key, fingers in (("toy", "right", "lift_toy", "thumb index middle ring pinky"), ("bottle", "right", "lift_jug", "thumb index middle ring pinky"), ("bottle_cap", "left", "unscrew_cap", "thumb index middle"),
                                      ("washer_drawer", "left", "pull_drawer", "index middle ring pinky")):
         f0 = phases[key][0]
         d.qpos[:] = q[f0]; mj.mj_kinematics(m, d)

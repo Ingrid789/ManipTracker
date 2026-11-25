@@ -40,7 +40,7 @@ p { margin: 0 0 14px; }
 .pill svg { width: 16px; height: 16px; }
 
 /* ---- the first screen: a tall section; the canvas and the captions stick while the page scrolls through it */
-.scrolly { position: relative; height: 820vh; }
+.scrolly { position: relative; height: 900vh; }
 .scrolly .sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: linear-gradient(#a9c8ef 0%, var(--horizon) 55%); }
 #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.6s ease; }
 .scrolly.ready #hero-canvas { opacity: 1; }
