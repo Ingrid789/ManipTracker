@@ -61,6 +61,8 @@ p { margin: 0 0 14px; }
 .chapter .authors { font-size: clamp(14.5px, 1.05vw, 16.5px); line-height: 1.6; margin-bottom: 6px; }
 .chapter .affils { color: var(--muted); font-size: clamp(12.5px, 0.88vw, 14px); line-height: 1.6; margin-bottom: 14px; }
 .authors span, .affils span { white-space: nowrap; }
+.authors a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 28%, transparent); text-underline-offset: 3px; }
+.authors a:hover, .authors a:focus-visible { color: var(--blue); text-decoration-color: currentColor; }
 .affils i { font-style: normal; }
 .authors sup, .affils sup { color: var(--muted); font-size: 0.72em; line-height: 0; }
 .chapter .pitch { color: var(--muted); font-size: clamp(15px, 1.1vw, 17px); margin-bottom: 20px; }
