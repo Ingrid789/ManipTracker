@@ -3,20 +3,21 @@
 // The section (.scrolly) is tall and its content sticks, so scroll position is a number p in [0, 1]. p drives
 // everything: the motion time of the robot, the camera, what is visible, and which caption shows.
 //   0.00  title          a G1 humanoid with Revo2 hands stands in a laundry room, in front of a washing machine
-//   0.14  Part I         grasp candidates appear around the door's rim; filtering keeps the anchors in its pull recess
-//   0.32  Part II        root and right wrist paths are drawn; the robot walks to the machine and reaches the anchors
-//   0.56  Combine        it pulls the door ajar, changes its grasp and opens the door while stepping back
-//   0.78  ManipTracker   the motion rewinds and plays again: the reference as a ghost, the robot following it
+//   0.10  Part I         grasp candidates appear around the door's rim; filtering keeps the anchors in its pull
+//                        recess; then the anchors on the detergent jug, its cap and the drawer show
+//   0.24  Part II        root and right wrist paths are drawn; the robot walks to the machine and pulls the door open
+//   0.42  Combine        the long task: fetch the jug, unscrew its cap, open the drawer, pour, close the drawer
+//   0.80  ManipTracker   the last step, closing the door: the reference as a ghost, the robot a moment behind it
 //
 // The scene is exported by tools/export_hero.py into media/hero:
-//   scene.glb   robot and washer, one node per body, with the motion baked in two clips ("robot" and "door")
-//   room.spz    the laundry room as Gaussian splats, cut down to the machine row, the floor and a few objects
-//   scene.json  the motion's phases, the root and wrist paths, the grasp anchors on the door
+//   scene.glb   robot, washer, jug and cap, one node per body, with the motion baked in two clips ("robot", "scene")
+//   room.spz    the laundry room as Gaussian splats, cut down to the machine row and the floor in front of it
+//   scene.json  the motion's phases and steps, the root and wrist paths, the grasp anchors on the objects
 // Its frame: x along the row of machines, y up from the floor, z from the machines into the room, in metres.
 import * as THREE from "three";
 
 const ASSETS = { glb: "media/hero/scene.glb", splat: "media/hero/room.spz", meta: "media/hero/scene.json" };
-const CHAPTERS = [0, 0.14, 0.32, 0.56, 0.78, 1];  // where each caption starts; the last entry is the end
+const CHAPTERS = [0, 0.10, 0.24, 0.42, 0.80, 1];  // where each caption starts; the last entry is the end
 
 const section = document.querySelector(".scrolly");
 const canvas = document.querySelector("#hero-canvas");
@@ -33,6 +34,7 @@ const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 // ---- captions, dots and scroll position (these work without WebGL too)
 const chapters = [...document.querySelectorAll(".hud .chapter")];
 const dots = [...document.querySelectorAll(".scrolly .dots button")];
+const stepLine = document.querySelector("#hero-step");
 let chapter = -1;
 function setChapter(p) {
   let c = 0;
@@ -72,8 +74,9 @@ if (renderer) {
 }
 
 async function start() {
-  const [{ GLTFLoader }, { RoomEnvironment }, { SparkRenderer, SplatMesh }] = await Promise.all([
-    import("three/addons/loaders/GLTFLoader.js"), import("three/addons/environments/RoomEnvironment.js"), import("@sparkjsdev/spark")]);
+  const [{ GLTFLoader }, { MeshoptDecoder }, { RoomEnvironment }, { SparkRenderer, SplatMesh }] = await Promise.all([
+    import("three/addons/loaders/GLTFLoader.js"), import("three/addons/libs/meshopt_decoder.module.js"),
+    import("three/addons/environments/RoomEnvironment.js"), import("@sparkjsdev/spark")]);
   renderer.setClearColor(0x000000, 0);  // the page's sky shows where the room has been cut away
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -84,7 +87,7 @@ async function start() {
   // the room: Gaussian splats, drawn by Spark, which sorts them in a worker and asks for a new frame when it is done
   scene.add(new SparkRenderer({ renderer, onDirty: () => { dirty = true; } }));
   const room = new SplatMesh({ url: ASSETS.splat });
-  const [gltf, meta] = await Promise.all([new GLTFLoader().loadAsync(ASSETS.glb), fetch(ASSETS.meta).then((r) => r.json()), room.initialized]);
+  const [gltf, meta] = await Promise.all([new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(ASSETS.glb), fetch(ASSETS.meta).then((r) => r.json()), room.initialized]);
   scene.add(room);
 
   // light for the robot and the washer: the room's ceiling lamp, soft light from all around, a shadow on the splat floor
@@ -118,10 +121,11 @@ async function start() {
     o.castShadow = !glass; o.receiveShadow = !glass;
     if (glass) { o.renderOrder = 3; o.material.depthWrite = false; }
   });
-  const DURATION = meta.duration, FPS = meta.fps;
+  const FPS = meta.fps;
   const clip = (name) => gltf.animations.find((c) => c.name === name);
   const player = (root, name) => { const m = new THREE.AnimationMixer(root); m.clipAction(clip(name)).play(); return m; };
-  const robotMixer = player(robot, "robot"), doorMixer = player(fixture, "door");
+  const DURATION = Math.min(meta.duration, clip("robot").duration, clip("scene").duration);
+  const robotMixer = player(robot, "robot"), sceneMixer = player(fixture, "scene");
   // the reference of the last chapter: the same robot once more, see-through and blue
   const ghost = robot.clone(true);
   const ghostMat = new THREE.MeshStandardMaterial({ color: 0x2f63d8, roughness: 0.5, transparent: true, opacity: 0, emissive: 0x2f63d8, emissiveIntensity: 0.25 });
@@ -156,11 +160,19 @@ async function start() {
   const arc = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPts), 48, 0.0045, 8), new THREE.MeshBasicMaterial({ color: GOLD, transparent: true, opacity: 0 }));
   arc.renderOrder = 5;
   door.add(arc);
+  // the anchors of the other objects of this task: on the jug's handle, on its cap, on the drawer's front
+  const held = meta.held.flatMap((h) => h.points.map((p) => {
+    const m = new THREE.Mesh(dot, new THREE.MeshBasicMaterial({ color: GOLD, depthTest: false, transparent: true }));
+    m.position.set(...p);
+    m.renderOrder = 6;
+    fixture.getObjectByName(h.node).add(m);
+    return m;
+  }));
 
-  // ---- Part II: the two sparse controls of this motion, the root (green) and the right wrist (red), as paths
-  const every = meta.path_every, i0 = Math.floor(PH.walk_in[0] / every), i1 = Math.ceil(PH.retract[1] / every);
-  const trails = [["root", GREEN, 0.012], ["right", RED, 0.01]].map(([key, color, r]) => {
-    const pts = meta.paths[key].slice(i0, i1 + 1).map((p) => V(...p));
+  // ---- Part II: the two sparse controls of the first step, the root (green) and the right wrist (red), as paths
+  const every = meta.path_every, i0 = Math.floor(PH["open_door:walk_in"][0] / every), i1 = Math.ceil(PH["open_door:retract"][1] / every);
+  const trails = [["root", GREEN, 0.012, i0, i1], ["right", RED, 0.01, i0, i1]].map(([key, color, r, a, b]) => {
+    const pts = meta.paths[key].slice(a, b + 1).map((p) => V(...p));
     const beads = new THREE.InstancedMesh(dot, new THREE.MeshStandardMaterial({ color, roughness: 0.5, emissive: color, emissiveIntensity: 0.35, transparent: true }), pts.length);
     const m = new THREE.Matrix4();
     pts.forEach((p, i) => beads.setMatrixAt(i, m.makeScale(r, r, r).setPosition(p)));
@@ -175,15 +187,19 @@ async function start() {
   const DOOR = V(0.52, 0.68, 0.82), RECESS = V(0.63, 0.74, 0.8);
   const KEYS = [
     { p: 0.00, pos: V(2.75, 1.6, 4.3), tgt: V(0.5, 0.85, 1.0), follow: 0 },
-    { p: 0.13, pos: V(2.45, 1.55, 4.3), tgt: V(0.5, 0.82, 1.0), follow: 0 },
-    { p: 0.20, pos: V(1.42, 0.98, 1.95), tgt: RECESS.clone().add(V(-0.06, -0.04, 0)), follow: 0 },
-    { p: 0.31, pos: V(1.2, 1.0, 1.72), tgt: RECESS.clone().add(V(-0.04, -0.02, 0)), follow: 0 },
-    { p: 0.38, pos: V(2.7, 2.35, 4.05), tgt: V(0.55, 0.6, 1.25), follow: 0 },
-    { p: 0.56, pos: V(2.05, 1.4, 1.95), tgt: V(0.45, 0.72, 1.05), follow: 0.15 },
-    { p: 0.66, pos: V(1.95, 1.4, 2.5), tgt: V(0.4, 0.7, 1.1), follow: 0.2 },
-    { p: 0.77, pos: V(1.75, 1.42, 3.1), tgt: V(0.3, 0.72, 1.1), follow: 0.25 },
-    { p: 0.84, pos: V(2.5, 1.7, 3.7), tgt: V(0.5, 0.75, 1.2), follow: 0.2 },
-    { p: 1.00, pos: V(1.6, 1.45, 3.3), tgt: V(0.25, 0.74, 1.1), follow: 0.3 },
+    { p: 0.095, pos: V(2.45, 1.55, 4.3), tgt: V(0.5, 0.82, 1.0), follow: 0 },
+    { p: 0.14, pos: V(1.42, 0.98, 1.95), tgt: RECESS.clone().add(V(-0.06, -0.04, 0)), follow: 0 },
+    { p: 0.205, pos: V(1.2, 1.0, 1.72), tgt: RECESS.clone().add(V(-0.04, -0.02, 0)), follow: 0 },
+    { p: 0.24, pos: V(1.75, 1.5, 2.55), tgt: V(0.72, 0.95, 0.7), follow: 0 },        // jug, cap and drawer
+    { p: 0.30, pos: V(2.7, 2.35, 4.05), tgt: V(0.55, 0.6, 1.25), follow: 0 },         // the paths, from above
+    { p: 0.36, pos: V(2.05, 1.4, 2.2), tgt: V(0.45, 0.72, 1.05), follow: 0.15 },
+    { p: 0.42, pos: V(1.9, 1.45, 2.7), tgt: V(0.4, 0.7, 1.1), follow: 0.2 },          // the door is open
+    { p: 0.48, pos: V(-1.0, 1.6, 2.65), tgt: V(0.95, 0.95, 0.95), follow: 0.35 },     // from the left: the counter
+    { p: 0.66, pos: V(-0.95, 1.6, 2.55), tgt: V(0.9, 0.95, 1.0), follow: 0.35 },
+    { p: 0.70, pos: V(-0.8, 1.5, 2.2), tgt: V(0.45, 0.88, 1.0), follow: 0.15 },       // the drawer
+    { p: 0.80, pos: V(-0.75, 1.5, 2.15), tgt: V(0.42, 0.85, 1.05), follow: 0.15 },
+    { p: 0.86, pos: V(2.3, 1.65, 3.3), tgt: V(0.4, 0.75, 1.1), follow: 0.25 },        // back to the right: the door
+    { p: 1.00, pos: V(1.75, 1.45, 3.3), tgt: V(0.35, 0.74, 1.1), follow: 0.3 },
   ];
   const camPos = V(), camTgt = V(), focus = V();
   let wide = false;
@@ -197,35 +213,49 @@ async function start() {
   }
 
   // ---- one frame at scroll position p
-  const tStand = T(40), tReach = T(PH.insert_tip[1]), tReplay = T(PH.reach[0] - 40);
+  const tStand = T(40), tOpen = T(meta.steps[0].frames[1]), tClose = T(meta.steps[meta.steps.length - 1].frames[0]);
+  let stepShown = "";
   function draw(p, time) {
     setChapter(p);
-    // the demonstration: stands while the anchors are picked, walks in and reaches, then opens the door
-    let t = p < 0.14 ? tStand * seg(p, 0, 0.14) : p < 0.36 ? tStand : p < 0.56 ? mix(tStand, tReach, seg(p, 0.36, 0.56)) : mix(tReach, DURATION, seg(p, 0.56, 0.765));
-    // ManipTracker: the motion rewinds, then plays again with the robot a moment behind its reference
-    const track = ease(p, 0.78, 0.83);
+    // the demonstration: stands while the anchors are picked, opens the door, then does the long task
+    let t = p < 0.10 ? tStand * seg(p, 0, 0.10) : p < 0.27 ? tStand : p < 0.42 ? mix(tStand, tOpen, seg(p, 0.27, 0.42)) : mix(tOpen, tClose, seg(p, 0.42, 0.80));
+    // ManipTracker: the last step, with the robot a moment behind its reference
+    const track = ease(p, 0.80, 0.83);
     let tRef = t;
-    if (p >= 0.78) {
-      t = p < 0.835 ? mix(DURATION, tReplay, ease(p, 0.78, 0.835)) : mix(tReplay, DURATION, seg(p, 0.845, 0.985));
-      tRef = t + 0.4 * seg(p, 0.845, 0.87) * (1 - seg(p, 0.96, 0.985));
+    if (p >= 0.80) {
+      t = mix(tClose, DURATION, seg(p, 0.80, 0.985));
+      tRef = t + 0.4 * seg(p, 0.81, 0.84) * (1 - seg(p, 0.955, 0.985));
     }
-    at(robotMixer, t); at(doorMixer, t);
+    at(robotMixer, t); at(sceneMixer, t);
     ghost.visible = track > 0.01;
     if (ghost.visible) { at(ghostMixer, tRef); ghostMat.opacity = 0.34 * track; }
+    // which step of the task this is
+    const frame = t * FPS, k = meta.steps.findIndex((s) => frame <= s.frames[1] + 0.5);
+    const label = p > 0.275 && p < 0.99 && k >= 0 ? `${k + 1}/${meta.steps.length} · ${meta.steps[k].name}` : "";
+    if (stepLine && label !== stepShown) {
+      stepShown = label;
+      if (label) stepLine.textContent = label;
+      stepLine.classList.toggle("on", !!label);
+    }
 
     // Part I: candidates pop in one after another; filtering leaves the anchors in the pull recess
-    const kept = ease(p, 0.25, 0.3), gone = ease(p, 0.33, 0.37);
+    const kept = ease(p, 0.17, 0.20), gone = ease(p, 0.265, 0.285);
     marks.forEach((m, i) => {
-      const shown = ease(p, 0.165 + i * 0.002, 0.185 + i * 0.002) * (1 - gone);
+      const shown = ease(p, 0.115 + i * 0.0014, 0.13 + i * 0.0014) * (1 - gone);
       const s = 0.0095 * (i < anchors.length ? shown * mix(1, 1.3, kept) * (1 + 0.1 * kept * Math.sin(time * 3 + i)) : shown * (1 - kept));
       m.visible = s > 1e-4;
       m.scale.setScalar(Math.max(1e-4, s));
     });
     arc.material.opacity = kept * (1 - gone);
     arc.visible = arc.material.opacity > 0.01;
+    held.forEach((m, i) => {
+      const s = 0.011 * ease(p, 0.212 + i * 0.002, 0.226 + i * 0.002) * (1 - gone) * (1 + 0.1 * Math.sin(time * 3 + i));
+      m.visible = s > 1e-4;
+      m.scale.setScalar(Math.max(1e-4, s));
+    });
 
     // Part II: the paths are drawn
-    const drawn = ease(p, 0.33, 0.43), fade = 1 - ease(p, 0.57, 0.61);  // gone before the camera comes close
+    const drawn = ease(p, 0.25, 0.31), fade = 1 - ease(p, 0.335, 0.365);  // gone before the camera comes close
     for (const tr of trails) {
       const n = Math.round(tr.n * drawn);
       tr.beads.count = n; tr.line.geometry.setDrawRange(0, n);
@@ -237,7 +267,7 @@ async function start() {
     scene.updateMatrixWorld();
     pelvis.getWorldPosition(focus);
     aim(p);
-    if (!reduced) camPos.x += 0.12 * Math.sin(time * 0.5) * (1 - seg(p, 0.1, 0.18));  // the title drifts a little
+    if (!reduced) camPos.x += 0.12 * Math.sin(time * 0.5) * (1 - seg(p, 0.07, 0.13));  // the title drifts a little
     camera.position.copy(camPos);
     camera.lookAt(camTgt);
     renderer.render(scene, camera);
@@ -289,7 +319,7 @@ async function start() {
     const target = progress();
     const moving = Math.abs(target - shown) > 1e-5;
     shown = reduced || !moving ? target : shown + (target - shown) * 0.14;
-    const idle = !reduced && (shown < 0.18 || (shown > 0.24 && shown < 0.37));  // the title drift, the anchors' pulse
+    const idle = !reduced && (shown < 0.13 || (shown > 0.165 && shown < 0.29));  // the title drift, the anchors' pulse
     if (moving || idle) {
       if (last && ms - last < 250 && spans.push(ms - last) >= 30) adapt();
       last = lastLive = ms;

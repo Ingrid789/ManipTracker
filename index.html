@@ -10,14 +10,23 @@
 <link rel="icon" href="media/img/favicon.png" type="image/png">
 <link rel="stylesheet" href="site.css">
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/", "@sparkjsdev/spark": "./vendor/spark/spark.module.min.js" } }</script>
+<!-- the first screen's 3D scene: fetched alongside the page, so nothing waits for the script that asks for it -->
+<link rel="modulepreload" href="vendor/three/three.module.min.js">
+<link rel="modulepreload" href="vendor/three/three.core.min.js">
+<link rel="modulepreload" href="vendor/spark/spark.module.min.js">
+<link rel="modulepreload" href="vendor/three/addons/loaders/GLTFLoader.js">
+<link rel="modulepreload" href="vendor/three/addons/libs/meshopt_decoder.module.js">
+<link rel="preload" href="media/hero/scene.glb" as="fetch" crossorigin>
+<link rel="preload" href="media/hero/room.spz" as="fetch" crossorigin>
+<link rel="preload" href="media/hero/scene.json" as="fetch" crossorigin>
 </head>
 <body>
 
 <!-- the first screen: a tall section whose content sticks; the scroll position plays the 3D scene (hero.js) -->
 <header class="scrolly" id="top" data-chapter="0">
   <div class="sticky">
-    <img class="fallback" src="media/img/teaser.png" alt="">
-    <canvas id="hero-canvas" aria-label="A G1 humanoid walks to a washing machine in a laundry room, hooks its right hand behind the rim of the door and pulls the door open"></canvas>
+    <img class="fallback" src="media/img/teaser.png" alt="" loading="lazy">
+    <canvas id="hero-canvas" aria-label="A G1 humanoid in a laundry room opens a washing machine, fetches a jug of detergent from the counter, unscrews its cap, pours it into the machine's drawer, and closes the drawer and the door"></canvas>
     <div class="hud">
       <div class="chapter title on">
         <span class="tag" style="--accent: var(--ink)">NeurIPS 2026</span>
@@ -45,7 +54,7 @@
       <div class="chapter" style="--accent: var(--gold)">
         <span class="tag">ManipSynth · Part I</span>
         <h2>Grasp anchors, in the object's frame</h2>
-        <p>For each hand and object, grasp poses are generated, optimized for force closure and filtered. What remains are reusable anchors that travel with the object.</p>
+        <p>For each hand and object, grasp poses are generated, optimized for force closure and filtered. What remains are reusable anchors that travel with the object: here on the door, the jug, its cap and the drawer.</p>
       </div>
       <div class="chapter" style="--accent: var(--orange)">
         <span class="tag">ManipSynth · Part II</span>
@@ -55,8 +64,8 @@
       </div>
       <div class="chapter" style="--accent: var(--blue)">
         <span class="tag">ManipSynth · Combine</span>
-        <h2>A synthetic HOI demonstration</h2>
-        <p>Composed, the two parts give humanoid, object and contact trajectories that are aligned, and structured enough to be tracked.</p>
+        <h2>A long synthetic HOI demonstration</h2>
+        <p>Composed, the two parts give humanoid, object and contact trajectories that are aligned, and structured enough to be tracked. This one chains seven interactions, from opening the door to closing it.</p>
       </div>
       <div class="chapter" style="--accent: var(--green)">
         <span class="tag">ManipTracker</span>
@@ -64,6 +73,7 @@
         <p>The synthetic demonstration is the tracking target. A unified policy, trained with an imitation reward, drives a simulated humanoid to reproduce it.</p>
       </div>
     </div>
+    <div class="stepline" id="hero-step" aria-hidden="true"></div>
     <nav class="dots" aria-label="Story">
       <button type="button" aria-current="step"><span>Intro</span></button>
       <button type="button"><span>Grasp anchors</span></button>

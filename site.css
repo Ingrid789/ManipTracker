@@ -40,7 +40,7 @@ p { margin: 0 0 14px; }
 .pill svg { width: 16px; height: 16px; }
 
 /* ---- the first screen: a tall section; the canvas and the captions stick while the page scrolls through it */
-.scrolly { position: relative; height: 620vh; }
+.scrolly { position: relative; height: 820vh; }
 .scrolly .sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: linear-gradient(#a9c8ef 0%, var(--horizon) 55%); }
 #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.6s ease; }
 .scrolly.ready #hero-canvas { opacity: 1; }
@@ -72,6 +72,9 @@ p { margin: 0 0 14px; }
 .legend li { display: flex; align-items: center; gap: 7px; }
 .legend li::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--c); }
 .links { display: flex; gap: 10px; flex-wrap: wrap; }
+/* which step of the task plays */
+.stepline { position: absolute; left: 64%; bottom: 34px; transform: translateX(-50%); padding: 8px 14px; border-radius: 999px; background: rgba(16, 18, 24, 0.78); color: #fff; font: 500 13px/1 var(--mono); letter-spacing: 0.4px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+.scrolly.ready .stepline.on { opacity: 1; }
 /* the chapter dots, down the right */
 .dots { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; }
 .dots button { display: flex; align-items: center; justify-content: flex-end; gap: 9px; height: 26px; padding: 0 4px; border: 0; background: none; cursor: pointer; color: var(--muted); font: 700 12.5px/1 var(--display); }
@@ -207,6 +210,7 @@ footer .end { display: flex; align-items: center; justify-content: space-between
   .hud::before { background: linear-gradient(0deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 34%, rgba(255, 255, 255, 0) 60%); }
   .chapter, .chapter.title { left: 20px; right: 20px; width: auto; top: auto; bottom: 64px; transform: translateY(14px); }
   .chapter.on { transform: none; }
+  .stepline { left: 50%; top: 14px; bottom: auto; font-size: 12px; }
   .chapter h1 { font-size: clamp(38px, 11vw, 56px); margin-bottom: 8px; }
   .chapter .subtitle { font-size: 17px; margin-bottom: 8px; }
   .chapter .pitch { display: none; }   /* the title caption carries the authors here; the abstract is one scroll away */
