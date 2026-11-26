@@ -1,0 +1,1323 @@
+{
+  "robots": {
+    "smplx": "media/viewer/robots/smplx.glb",
+    "g1": "media/viewer/robots/g1.glb",
+    "h2": "media/viewer/robots/h2.glb"
+  },
+  "tabs": {
+    "human": {
+      "label": "SMPL-X humanoid",
+      "note": "Interactive 3D viewer of all 19 synthesized SMPL-X demonstrations (17 whole-body loco-manipulation tasks + 2 in-hand dexterous manipulation skills). Drag to orbit, click + scroll to zoom, or switch to Hand Close-up.",
+      "clips": [
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 382,
+          "duration": 25.47,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.32594335079193115,
+              0.0,
+              -0.5626386404037476
+            ],
+            [
+              4.332391262054443,
+              1.8412259817123413,
+              1.8782312870025635
+            ]
+          ],
+          "id": "hum_01_pickplace",
+          "title": "Camera, table to table",
+          "kind": "Pick and place",
+          "default_cam": "overview",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_01_pickplace.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 302,
+          "duration": 20.13,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.27735018730163574,
+              0.0,
+              -2.687805652618408
+            ],
+            [
+              0.7493700385093689,
+              1.8423112630844116,
+              0.134512796998024
+            ]
+          ],
+          "id": "hum_19_inhand_flip270",
+          "title": "Cube 270\u00b0 palm flip",
+          "kind": "In-hand manipulation",
+          "default_cam": "hand",
+          "azimuth": 45,
+          "thumb": "media/viewer/thumbs/hum_19_inhand_flip270.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 266,
+          "duration": 17.73,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.27735018730163574,
+              0.0,
+              -2.687805652618408
+            ],
+            [
+              0.763465404510498,
+              1.8423112630844116,
+              0.134512796998024
+            ]
+          ],
+          "id": "hum_20_inhand_translate",
+          "title": "Bar finger-gaiting",
+          "kind": "In-hand manipulation",
+          "default_cam": "hand",
+          "azimuth": 45,
+          "thumb": "media/viewer/thumbs/hum_20_inhand_translate.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 394,
+          "duration": 26.27,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.325374037027359,
+              0.0,
+              -0.5689346194267273
+            ],
+            [
+              4.205691814422607,
+              1.8265615701675415,
+              2.0422747135162354
+            ]
+          ],
+          "id": "hum_02_handover",
+          "title": "Mug, hand to hand",
+          "kind": "Handover",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_02_handover.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 373,
+          "duration": 24.87,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.33341532945632935,
+              0.0,
+              -2.992621421813965
+            ],
+            [
+              0.3843187689781189,
+              2.545809745788574,
+              2.4531407356262207
+            ]
+          ],
+          "id": "hum_03_chair_overhead",
+          "title": "Wood chair overhead carry",
+          "kind": "Bimanual carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/hum_03_chair_overhead.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 360,
+          "duration": 24.0,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.38963228464126587,
+              0.0,
+              -2.639819860458374
+            ],
+            [
+              0.33910802006721497,
+              1.8222389221191406,
+              2.500185966491699
+            ]
+          ],
+          "id": "hum_04_large_object",
+          "title": "Trash can two-hand carry",
+          "kind": "Large object carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/hum_04_large_object.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 291,
+          "duration": 19.4,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.0743563175201416,
+              0.0,
+              -0.3343577980995178
+            ],
+            [
+              2.886197328567505,
+              1.8170047998428345,
+              0.8565795421600342
+            ]
+          ],
+          "id": "hum_05_pole_carry",
+          "title": "Floor lamp carry",
+          "kind": "Pole carry",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_05_pole_carry.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 186,
+          "duration": 12.4,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.5350000262260437,
+              0.0,
+              -0.6888898611068726
+            ],
+            [
+              0.5350000262260437,
+              1.8242013454437256,
+              2.4705450534820557
+            ]
+          ],
+          "id": "hum_06_box_push",
+          "title": "Plastic box push on table",
+          "kind": "Push",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/hum_06_box_push.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 137,
+          "duration": 9.13,
+          "n_robot": 52,
+          "n_obj": 0,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.0664499998092651,
+              0.0,
+              -0.699999988079071
+            ],
+            [
+              4.199999809265137,
+              2.5617072582244873,
+              0.699999988079071
+            ]
+          ],
+          "id": "hum_07_stairs_walk",
+          "title": "Up the stairs",
+          "kind": "Terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_07_stairs_walk.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 463,
+          "duration": 30.87,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.789236068725586,
+              0.0,
+              -1.144782304763794
+            ],
+            [
+              5.41790771484375,
+              2.381542921066284,
+              0.6000000238418579
+            ]
+          ],
+          "id": "hum_08_stairs_carry",
+          "title": "Water bottle over stairs",
+          "kind": "Carry on terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_08_stairs_carry.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 86,
+          "duration": 5.73,
+          "n_robot": 52,
+          "n_obj": 0,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.10358926653862,
+              0.0,
+              -0.85174161195755
+            ],
+            [
+              2.6656625270843506,
+              1.8692495822906494,
+              0.8731776475906372
+            ]
+          ],
+          "id": "hum_09_balance_beam",
+          "title": "Walk across balance beam",
+          "kind": "Terrain",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/hum_09_balance_beam.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 807,
+          "duration": 53.8,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.076566457748413,
+              0.0,
+              -1.546764612197876
+            ],
+            [
+              0.4025551378726959,
+              1.8180959224700928,
+              0.7471401691436768
+            ]
+          ],
+          "id": "hum_10_chair_sit",
+          "title": "Pull out chair and sit",
+          "kind": "Sit",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_10_chair_sit.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 165,
+          "duration": 11.0,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.7675114274024963,
+              0.0,
+              -0.759522557258606
+            ],
+            [
+              0.9543242454528809,
+              1.782844066619873,
+              1.0041816234588623
+            ]
+          ],
+          "id": "hum_11_chair_spin",
+          "title": "Spin wooden chair",
+          "kind": "Spin",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/hum_11_chair_spin.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 81,
+          "duration": 5.4,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.2608264088630676,
+              0.0,
+              -0.4383012652397156
+            ],
+            [
+              30.511837005615234,
+              1.8211685419082642,
+              11.033891677856445
+            ]
+          ],
+          "id": "hum_12_soccer_kick",
+          "title": "Kick soccer ball",
+          "kind": "Football",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_12_soccer_kick.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 496,
+          "duration": 33.07,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.792102336883545,
+              0.0,
+              -0.3739571273326874
+            ],
+            [
+              0.5554219484329224,
+              1.8235725164413452,
+              0.49118244647979736
+            ]
+          ],
+          "id": "hum_13_mop",
+          "title": "Floor mopping",
+          "kind": "Tool use",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_13_mop.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 255,
+          "duration": 17.0,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.3541266918182373,
+              0.0,
+              -0.30851635336875916
+            ],
+            [
+              0.25999999046325684,
+              1.8369394540786743,
+              0.3712306618690491
+            ]
+          ],
+          "id": "hum_14_yogamat",
+          "title": "Yoga mat on shoulder",
+          "kind": "Whole-body carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/hum_14_yogamat.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 147,
+          "duration": 9.8,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.3647944927215576,
+              0.0,
+              -2.446016788482666
+            ],
+            [
+              2.854064702987671,
+              2.2096959352493286,
+              0.1660148650407791
+            ]
+          ],
+          "id": "hum_15_throw",
+          "title": "Tennis ball overhand throw",
+          "kind": "Throw",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/hum_15_throw.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 163,
+          "duration": 10.87,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.420381784439087,
+              0.0,
+              -4.839280128479004
+            ],
+            [
+              0.8422583937644958,
+              3.6499998569488525,
+              0.4670467972755432
+            ]
+          ],
+          "id": "hum_16_basketball",
+          "title": "Basketball jump shot",
+          "kind": "Basketball",
+          "default_cam": "overview",
+          "azimuth": -30,
+          "thumb": "media/viewer/thumbs/hum_16_basketball.jpg"
+        },
+        {
+          "robot": "smplx",
+          "fps": 15.0,
+          "frames": 186,
+          "duration": 12.4,
+          "n_robot": 52,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.0993623733520508,
+              0.0,
+              -2.489315986633301
+            ],
+            [
+              0.23795875906944275,
+              1.8456082344055176,
+              0.15152102708816528
+            ]
+          ],
+          "id": "hum_17_undertable",
+          "title": "Pick ball under table",
+          "kind": "Kneel and pick",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/hum_17_undertable.jpg"
+        }
+      ]
+    },
+    "g1": {
+      "label": "G1 + Revo2",
+      "note": "Beyond the paper: interactive 3D viewer of all 17 synthesized demonstrations for the Unitree G1 with Revo2 dexterous hands.",
+      "clips": [
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 465,
+          "duration": 18.6,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.011675199493765831,
+              0.0,
+              -0.903190016746521
+            ],
+            [
+              2.8678700923919678,
+              1.8814371585845948,
+              0.8305762410163879
+            ]
+          ],
+          "id": "g1_01_pickplace",
+          "title": "Apple into a hutch",
+          "kind": "Pick and place",
+          "default_cam": "follow",
+          "azimuth": -125,
+          "thumb": "media/viewer/thumbs/g1_01_pickplace.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 1163,
+          "duration": 46.52,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.017516138032078743,
+              0.0,
+              -0.05821624770760536
+            ],
+            [
+              2.579629898071289,
+              1.8813475131988526,
+              3.621880054473877
+            ]
+          ],
+          "id": "g1_02_handover",
+          "title": "Bowl, hand to hand",
+          "kind": "Handover",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_02_handover.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 852,
+          "duration": 34.08,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.010082447901368141,
+              0.0,
+              -0.05053209885954857
+            ],
+            [
+              4.562109470367432,
+              2.0210166931152345,
+              0.976622998714447
+            ]
+          ],
+          "id": "g1_03_chair_overhead",
+          "title": "Wood chair overhead carry",
+          "kind": "Bimanual carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/g1_03_chair_overhead.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 775,
+          "duration": 31.0,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.25610673427581787,
+              0.0,
+              -2.014164924621582
+            ],
+            [
+              2.1216516494750977,
+              1.8822072505950929,
+              0.02037210762500763
+            ]
+          ],
+          "id": "g1_04_large_object",
+          "title": "Trash can two-hand carry",
+          "kind": "Large object carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/g1_04_large_object.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 433,
+          "duration": 17.32,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.009640512056648731,
+              0.0,
+              -0.047102730721235275
+            ],
+            [
+              3.7737584114074707,
+              1.8808866500854493,
+              0.6691996455192566
+            ]
+          ],
+          "id": "g1_05_pole_carry",
+          "title": "Floor lamp carry",
+          "kind": "Pole carry",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_05_pole_carry.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 450,
+          "duration": 18.0,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.009484854526817799,
+              0.0,
+              -0.6650879979133606
+            ],
+            [
+              3.225409984588623,
+              1.8815515995025636,
+              0.45181700587272644
+            ]
+          ],
+          "id": "g1_06_box_push",
+          "title": "Plastic box push on table",
+          "kind": "Push",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/g1_06_box_push.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 245,
+          "duration": 9.8,
+          "n_robot": 72,
+          "n_obj": 0,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.9832119941711426,
+              0.0,
+              -0.045111916959285736
+            ],
+            [
+              1.1754320859909058,
+              2.523079490661621,
+              0.7891606688499451
+            ]
+          ],
+          "id": "g1_07_stairs_walk",
+          "title": "Up the stairs",
+          "kind": "Terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_07_stairs_walk.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 935,
+          "duration": 37.4,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -4.3334059715271,
+              0.0,
+              -1.0945700407028198
+            ],
+            [
+              2.284172534942627,
+              2.277306890487671,
+              1.4072020053863525
+            ]
+          ],
+          "id": "g1_08_stairs_carry",
+          "title": "Water bottle over stairs",
+          "kind": "Carry on terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_08_stairs_carry.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 1282,
+          "duration": 51.28,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.014360102824866772,
+              0.0,
+              -0.32989612221717834
+            ],
+            [
+              2.939349889755249,
+              1.8829782962799073,
+              1.3327478170394897
+            ]
+          ],
+          "id": "g1_10_chair_sit",
+          "title": "Pull out chair and sit",
+          "kind": "Sit",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_10_chair_sit.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 785,
+          "duration": 31.4,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.011621051467955112,
+              0.0,
+              -0.36259758472442627
+            ],
+            [
+              2.92618465423584,
+              1.8860074043273927,
+              0.7175617218017578
+            ]
+          ],
+          "id": "g1_11_chair_spin",
+          "title": "Spin wooden chair",
+          "kind": "Spin",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/g1_11_chair_spin.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 243,
+          "duration": 9.72,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.015979051589966,
+              0.0,
+              -2.8376400470733643
+            ],
+            [
+              3.9871599674224854,
+              1.9837857246398927,
+              1.1516828536987305
+            ]
+          ],
+          "id": "g1_12_soccer_kick",
+          "title": "Kick into a goal",
+          "kind": "Football",
+          "default_cam": "follow",
+          "azimuth": -125,
+          "thumb": "media/viewer/thumbs/g1_12_soccer_kick.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 1238,
+          "duration": 49.52,
+          "n_robot": 73,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.019456980749964714,
+              0.0,
+              -0.5821902751922607
+            ],
+            [
+              2.428527593612671,
+              1.8797421216964723,
+              0.5177031755447388
+            ]
+          ],
+          "id": "g1_13_mop",
+          "title": "Floor mopping",
+          "kind": "Tool use",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_13_mop.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 1012,
+          "duration": 40.48,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.015543227083981037,
+              0.0,
+              -2.5176892280578613
+            ],
+            [
+              3.0345027446746826,
+              1.8861192226409913,
+              0.9839087128639221
+            ]
+          ],
+          "id": "g1_14_yogamat",
+          "title": "Yoga mat on shoulder",
+          "kind": "Whole-body carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/g1_14_yogamat.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 632,
+          "duration": 25.28,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.018002726137638092,
+              0.0,
+              -2.403130054473877
+            ],
+            [
+              2.813889980316162,
+              1.8805309295654298,
+              0.09546960145235062
+            ]
+          ],
+          "id": "g1_15_throw",
+          "title": "Tennis ball overhand throw",
+          "kind": "Throw",
+          "default_cam": "overview",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/g1_15_throw.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 478,
+          "duration": 19.12,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.017522204667329788,
+              0.0,
+              -0.4271918535232544
+            ],
+            [
+              4.010389804840088,
+              2.4719322681427003,
+              0.7898989915847778
+            ]
+          ],
+          "id": "g1_16_basketball",
+          "title": "Shot at a hoop",
+          "kind": "Basketball",
+          "default_cam": "overview",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/g1_16_basketball.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 557,
+          "duration": 22.28,
+          "n_robot": 72,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -1.6739219427108765,
+              0.0,
+              -0.438306987285614
+            ],
+            [
+              1.3733199834823608,
+              1.8713921070098878,
+              0.5987750291824341
+            ]
+          ],
+          "id": "g1_17_undertable",
+          "title": "Pick ball under table",
+          "kind": "Kneel and pick",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/g1_17_undertable.jpg"
+        },
+        {
+          "robot": "g1",
+          "fps": 25.0,
+          "frames": 265,
+          "duration": 10.6,
+          "n_robot": 72,
+          "n_obj": 0,
+          "has_props": true,
+          "bounds": [
+            [
+              -5.430123329162598,
+              0.0,
+              -0.9951160550117493
+            ],
+            [
+              0.07003695517778397,
+              2.283906435966492,
+              6.712989807128906
+            ]
+          ],
+          "id": "g1_18_parkour",
+          "title": "Obstacle vault course",
+          "kind": "Parkour",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/g1_18_parkour.jpg"
+        }
+      ]
+    },
+    "h2": {
+      "label": "H2 + Sharpa Wave",
+      "note": "Beyond the paper: interactive 3D viewer of all 12 synthesized demonstrations for the Unitree H2 with Sharpa Wave dexterous hands.",
+      "clips": [
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 475,
+          "duration": 19.0,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.005545032676309347,
+              0.0,
+              -0.42753031849861145
+            ],
+            [
+              3.7911300659179688,
+              2.418614959716797,
+              1.2453399896621704
+            ]
+          ],
+          "id": "h2_01_pickplace",
+          "title": "Pepper grinder into a hutch",
+          "kind": "Pick and place",
+          "default_cam": "follow",
+          "azimuth": -125,
+          "thumb": "media/viewer/thumbs/h2_01_pickplace.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 788,
+          "duration": 31.52,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.005410426761955023,
+              0.0,
+              -0.021213755011558533
+            ],
+            [
+              2.7941181659698486,
+              2.603067493438721,
+              3.7565102577209473
+            ]
+          ],
+          "id": "h2_03_chair_overhead",
+          "title": "Wood chair overhead carry",
+          "kind": "Bimanual carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/h2_03_chair_overhead.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 826,
+          "duration": 33.04,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.374931663274765,
+              0.0,
+              -3.055006265640259
+            ],
+            [
+              2.9347963333129883,
+              2.4181047439575196,
+              0.03771816939115524
+            ]
+          ],
+          "id": "h2_04_large_object",
+          "title": "Trash can two-hand carry",
+          "kind": "Large object carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/h2_04_large_object.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 576,
+          "duration": 23.04,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.013550656847655773,
+              0.0,
+              -0.3380894064903259
+            ],
+            [
+              5.075313568115234,
+              2.4147869110107423,
+              0.3508988916873932
+            ]
+          ],
+          "id": "h2_05_pole_carry",
+          "title": "Floor lamp carry",
+          "kind": "Pole carry",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/h2_05_pole_carry.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 581,
+          "duration": 23.24,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.01113818772137165,
+              0.0,
+              -0.572035014629364
+            ],
+            [
+              3.2274599075317383,
+              2.41396484375,
+              0.4406079947948456
+            ]
+          ],
+          "id": "h2_06_box_push",
+          "title": "Crate push on table",
+          "kind": "Push",
+          "default_cam": "follow",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/h2_06_box_push.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 270,
+          "duration": 10.8,
+          "n_robot": 88,
+          "n_obj": 0,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.2781808376312256,
+              0.0,
+              -0.10999120026826859
+            ],
+            [
+              1.4098166227340698,
+              3.157530403137207,
+              0.8718608021736145
+            ]
+          ],
+          "id": "h2_07_stairs_walk",
+          "title": "Up the stairs",
+          "kind": "Terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/h2_07_stairs_walk.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 940,
+          "duration": 37.6,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -4.887815475463867,
+              0.0,
+              -1.3756400346755981
+            ],
+            [
+              3.1577794551849365,
+              2.867582654953003,
+              1.5531706809997559
+            ]
+          ],
+          "id": "h2_08_stairs_carry",
+          "title": "Water bottle over stairs",
+          "kind": "Carry on terrain",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/h2_08_stairs_carry.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 1340,
+          "duration": 53.6,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.016733257099986076,
+              0.0,
+              -0.3505987226963043
+            ],
+            [
+              3.5728800296783447,
+              2.416760063171387,
+              1.4715306758880615
+            ]
+          ],
+          "id": "h2_10_chair_sit",
+          "title": "Pull out chair and sit",
+          "kind": "Sit",
+          "default_cam": "follow",
+          "azimuth": -50,
+          "thumb": "media/viewer/thumbs/h2_10_chair_sit.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 1021,
+          "duration": 40.84,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.018549367785453796,
+              0.0,
+              -1.4468318223953247
+            ],
+            [
+              2.8151767253875732,
+              2.4261427879333497,
+              0.025622641667723656
+            ]
+          ],
+          "id": "h2_11_chair_spin",
+          "title": "Spin wooden chair",
+          "kind": "Spin",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/h2_11_chair_spin.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 254,
+          "duration": 10.16,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -2.7282779216766357,
+              0.0,
+              -5.115829944610596
+            ],
+            [
+              5.314350128173828,
+              2.4678228855133058,
+              1.5498554706573486
+            ]
+          ],
+          "id": "h2_12_soccer_kick",
+          "title": "Kick into a goal",
+          "kind": "Football",
+          "default_cam": "follow",
+          "azimuth": -125,
+          "thumb": "media/viewer/thumbs/h2_12_soccer_kick.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 1156,
+          "duration": 46.24,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.007400261703878641,
+              0.0,
+              -0.14378932118415833
+            ],
+            [
+              2.9092342853546143,
+              2.4159523010253907,
+              4.259859085083008
+            ]
+          ],
+          "id": "h2_14_yogamat",
+          "title": "Yoga mat on shoulder",
+          "kind": "Whole-body carry",
+          "default_cam": "follow",
+          "azimuth": -45,
+          "thumb": "media/viewer/thumbs/h2_14_yogamat.jpg"
+        },
+        {
+          "robot": "h2",
+          "fps": 25.0,
+          "frames": 645,
+          "duration": 25.8,
+          "n_robot": 88,
+          "n_obj": 1,
+          "has_props": true,
+          "bounds": [
+            [
+              -0.00944532547146082,
+              0.0,
+              -0.44332700967788696
+            ],
+            [
+              3.0523500442504883,
+              2.412800407409668,
+              2.029900074005127
+            ]
+          ],
+          "id": "h2_15_throw",
+          "title": "Tennis ball overhand throw",
+          "kind": "Throw",
+          "default_cam": "overview",
+          "azimuth": -55,
+          "thumb": "media/viewer/thumbs/h2_15_throw.jpg"
+        }
+      ]
+    }
+  }
+}

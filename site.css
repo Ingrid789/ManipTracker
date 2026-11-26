@@ -179,6 +179,102 @@ p { margin: 0 0 14px; }
 .grid figcaption { padding: 8px 4px 2px; font: 700 14px/1.3 var(--display); }
 .grid figcaption span { display: block; color: var(--muted); font: 500 11.5px/1.7 var(--mono); letter-spacing: 0.5px; text-transform: uppercase; }
 
+/* ---- interactive 3D viewer in #results */
+.viewer-shell[hidden] { display: none; }
+.viewer-stage {
+  position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: min(58svh, 540px);
+  border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #edf2f9;
+  user-select: none; touch-action: none;
+}
+#viewer-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+#viewer-canvas:active { cursor: grabbing; }
+.viewer-badge {
+  position: absolute; top: 14px; left: 14px; z-index: 2; pointer-events: none;
+  display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 340px);
+  padding: 7px 12px; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(8px);
+  border: 1px solid rgba(23, 25, 30, 0.10); color: var(--ink);
+  font: 600 13.5px/1.2 var(--display);
+}
+.viewer-badge b { font: 600 11.5px/1 var(--mono); letter-spacing: 0.6px; text-transform: uppercase; color: var(--blue); }
+.viewer-badge span { font: 500 11.5px/1 var(--mono); letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); }
+.viewer-badge i { font-style: normal; color: rgba(23, 25, 30, 0.28); }
+.viewer-cams {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(8px);
+  border: 1px solid rgba(23, 25, 30, 0.10);
+}
+.viewer-cams button {
+  padding: 6px 11px; border-radius: 999px; border: 0; background: transparent; color: var(--muted);
+  font: 700 12.5px/1 var(--display); cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.viewer-cams button:hover { color: var(--ink); background: rgba(23, 25, 30, 0.06); }
+.viewer-cams button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.viewer-cams .vsep { width: 1px; height: 16px; background: var(--line); margin: 0 2px; }
+.viewer-hint {
+  position: absolute; left: 14px; bottom: 64px; z-index: 2; pointer-events: none;
+  padding: 4px 9px; border-radius: 7px; background: rgba(255, 255, 255, 0.72);
+  color: var(--muted); font: 500 11.5px/1.2 var(--mono);
+}
+.viewer-loading {
+  position: absolute; inset: 0; z-index: 3; display: grid; place-items: center;
+  background: rgba(237, 242, 249, 0.72); backdrop-filter: blur(4px);
+  color: var(--ink); font: 600 14px/1 var(--mono);
+}
+.viewer-loading[hidden] { display: none; }
+.viewer-bar {
+  position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2;
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px;
+  background: rgba(16, 18, 24, 0.84); backdrop-filter: blur(10px);
+  color: #f3f6fb; border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.viewer-bar .vbtn {
+  flex: none; width: 30px; height: 30px; border-radius: 8px; border: 0;
+  background: rgba(255, 255, 255, 0.12); color: #fff; display: grid; place-items: center; cursor: pointer;
+}
+.viewer-bar .vbtn:hover { background: rgba(255, 255, 255, 0.22); }
+.viewer-bar .vbtn svg { width: 14px; height: 14px; }
+.viewer-bar input[type="range"] {
+  flex: 1; min-width: 80px; accent-color: var(--blue); cursor: pointer; height: 4px;
+}
+.viewer-bar .vtime {
+  flex: none; font: 500 12px/1 var(--mono); color: rgba(255, 255, 255, 0.85); min-width: 86px; text-align: right;
+}
+.vspeeds { display: inline-flex; gap: 2px; background: rgba(255, 255, 255, 0.08); padding: 2px; border-radius: 8px; }
+.vspeeds button {
+  padding: 5px 7px; border-radius: 6px; border: 0; background: transparent;
+  color: rgba(255, 255, 255, 0.72); font: 500 11.5px/1 var(--mono); cursor: pointer;
+}
+.vspeeds button:hover { color: #fff; }
+.vspeeds button[aria-pressed="true"] { background: #fff; color: var(--ink); font-weight: 700; }
+
+.viewer-thumbs {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 14px;
+}
+.vthumb {
+  display: grid; gap: 7px; padding: 7px; border-radius: 13px; border: 2px solid var(--line);
+  background: var(--card); color: var(--ink); text-align: left; cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.vthumb:hover { border-color: var(--muted); transform: translateY(-1px); }
+.vthumb[aria-selected="true"] { border-color: var(--ink); box-shadow: 0 6px 20px rgba(20, 22, 30, 0.08); }
+.vthumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: var(--stage); }
+.vthumb-meta { padding: 0 4px 2px; }
+.vthumb-meta span { display: block; color: var(--muted); font: 500 11px/1.6 var(--mono); letter-spacing: 0.5px; text-transform: uppercase; }
+.vthumb-meta strong { display: block; font: 700 14px/1.3 var(--display); color: var(--ink); }
+
+@media (max-width: 900px) {
+  .viewer-stage { aspect-ratio: 4 / 3; max-height: 62svh; }
+  .viewer-badge { max-width: calc(100% - 28px); font-size: 12px; padding: 5px 9px; }
+  .viewer-cams { top: auto; bottom: 58px; right: 10px; }
+  .viewer-cams button { padding: 5px 8px; font-size: 11.5px; }
+  .viewer-hint { display: none; }
+  .viewer-bar { left: 10px; right: 10px; bottom: 10px; padding: 6px 8px; gap: 6px; }
+  .viewer-bar .vtime { display: none; }
+  .viewer-thumbs { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+}
+
 /* ---- the paper's numbers: three small tables */
 .numbers { padding: 0 0 72px; }
 .tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 14px; align-items: start; }

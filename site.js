@@ -171,8 +171,27 @@
     for (const e of entries) { if (e.intersectionRatio >= 0.4) play(e.target); else e.target.pause(); }
   }, { threshold: [0, 0.4] });
   const grid = $(document, "#grid"), setNote = $(document, "#setnote"), tabs = [...document.querySelectorAll(".tabs [data-set]")];
+  const viewerShell = $(document, "#viewer-shell");
+  const VIEWER_TABS = new Set(["human", "g1", "h2"]);
   function showSet(id) {
     for (const v of grid.querySelectorAll("video")) playing.unobserve(v);
+    for (const t of tabs) t.setAttribute("aria-selected", String(t.dataset.set === id));
+    if (viewerShell && VIEWER_TABS.has(id)) {
+      grid.hidden = true;
+      grid.replaceChildren();
+      viewerShell.hidden = false;
+      if (window.__resultsViewer && window.__resultsViewer.hasTab(id)) {
+        window.__resultsViewer.showTab(id);
+      } else {
+        setNote.textContent = SETS[id].note;
+      }
+      return;
+    }
+    if (viewerShell) {
+      viewerShell.hidden = true;
+      window.__resultsViewer?.hide();
+    }
+    grid.hidden = false;
     grid.classList.toggle("wide16", !!SETS[id].wide);
     setNote.textContent = SETS[id].note;
     grid.replaceChildren(...SETS[id].clips.map(([name, title, kind]) => {
@@ -188,7 +207,6 @@
       playing.observe(v);
       return fig;
     }));
-    for (const t of tabs) t.setAttribute("aria-selected", String(t.dataset.set === id));
   }
   for (const t of tabs) t.addEventListener("click", () => showSet(t.dataset.set));
   showSet("human");

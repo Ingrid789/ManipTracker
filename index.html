@@ -178,7 +178,36 @@
       <button type="button" role="tab" data-set="body" aria-selected="false">Long-horizon and body motion</button>
     </div>
     <p class="setnote" id="setnote" aria-live="polite"></p>
-    <div class="grid" id="grid"></div>
+    <div class="viewer-shell" id="viewer-shell">
+      <div class="viewer-stage">
+        <canvas id="viewer-canvas" aria-label="Interactive 3D motion viewer"></canvas>
+        <div class="viewer-badge" id="viewer-badge"></div>
+        <div class="viewer-cams" role="group" aria-label="Camera view">
+          <button type="button" data-vcam="follow" aria-pressed="true">Follow</button>
+          <button type="button" data-vcam="hand" aria-pressed="false">Hand</button>
+          <button type="button" data-vcam="overview" aria-pressed="false">Overview</button>
+          <span class="vsep" aria-hidden="true"></span>
+          <button type="button" id="v-zin" title="Zoom in" aria-label="Zoom in">+</button>
+          <button type="button" id="v-zout" title="Zoom out" aria-label="Zoom out">−</button>
+          <button type="button" id="v-reset" title="Reset view">Reset</button>
+        </div>
+        <div class="viewer-hint" aria-hidden="true">Drag to orbit · Right-drag to pan · Click + scroll to zoom</div>
+        <div class="viewer-loading" id="viewer-loading" hidden>Loading 3D scene…</div>
+        <div class="viewer-bar">
+          <button type="button" class="vbtn" id="v-play" aria-label="Pause"></button>
+          <input type="range" id="v-scrub" min="0" max="1" step="0.001" value="0" aria-label="Timeline">
+          <span class="vtime" id="v-time">0.0s / 0.0s</span>
+          <div class="vspeeds" role="group" aria-label="Playback speed">
+            <button type="button" data-vspeed="0.25" aria-pressed="false">0.25×</button>
+            <button type="button" data-vspeed="0.5" aria-pressed="false">0.5×</button>
+            <button type="button" data-vspeed="1" aria-pressed="true">1×</button>
+            <button type="button" data-vspeed="2" aria-pressed="false">2×</button>
+          </div>
+        </div>
+      </div>
+      <div class="viewer-thumbs" id="viewer-thumbs" role="tablist" aria-label="Select a 3D clip"></div>
+    </div>
+    <div class="grid" id="grid" hidden></div>
   </div>
 </section>
 
@@ -247,6 +276,7 @@
 </footer>
 
 <script type="module" src="hero.js"></script>
+<script type="module" src="viewer.js"></script>
 <script src="site.js"></script>
 </body>
 </html>
